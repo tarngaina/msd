@@ -126,14 +126,9 @@ class Player():
     return xp_earned / xp_total * 100
 
   def go_area(self, id):
-    if id != p.area.id and id != p.area.name:
-      a = area.find(id)
-      if a == None:
-        a = area.find_name(id)
-      if a != None:
-        p.area = a
-        return True, f'moved to {a.name}'
-      else:
-        return False, 'cannot find that map'
+    a = area.find(id)
+    if a != None:
+      self.area = a
+      return True, f'moved to {a.name}'
     else:
-      return False, 'already in dat map'
+      return False, 'cannot find that map'
