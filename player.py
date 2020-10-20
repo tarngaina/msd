@@ -21,6 +21,7 @@ class Player():
     self.meso = 0
     self.xp = 0
     self.lv = 1
+    self.att = 10
     self.str = 5
     self.dex = 5
     self.int = 5
@@ -35,7 +36,7 @@ class Player():
     }
     self.cd = {'farm':datetime.datetime.min}
 
-  def to_dic(self):
+  def to_dict(self):
     dic = {}
     dic['hp'] = self.hp
     dic['max_hp'] = self.max_hp
@@ -50,6 +51,20 @@ class Player():
     dic['job'] = self.job.name
     dic['area'] = self.area.id
     return dic
+
+  def from_dict(self, dic):
+    self.hp = dic['hp']
+    self.max_hp = dic['max_hp']
+    self.meso = dic['meso']
+    self.xp = dic['xp']
+    self.lv = dic['lv']
+    self.str = dic['str']
+    self.dex = dic['dex']
+    self.int = dic['int']
+    self.luk = dic['luk']
+    self.free_stat_point = dic['free_stat_point']
+    self.job = job.find(dic['job'])
+    self.area = area.find(dic['area'])
 
   def inventory_to_dic(self):
     pass
@@ -107,9 +122,11 @@ class Player():
         self.inventory['etc'][item.id] = 0
       self.inventory['etc'][item.id] += number
     elif item.type == constant.ItemType.consume:
-      return
+      if item.id not in self.inventory['consume']:
+        self.inventory['consume'][item.id] = 0
+      self.inventory['consume'][item.id] += number
     else:
-      return
+      self.inventory['equip'].append(item)
     
   def gain_job(self, name)
     self.job = job.find_name(name)
