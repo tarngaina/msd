@@ -72,6 +72,16 @@ class Player():
       return self.int
     return self.luk
 
+  def set_stat(self, stat_name, point):
+    if stat_name == 'str':
+      self.str += point
+    if stat_name == 'dex':
+      self.dex += point
+    if stat_name == 'int':
+      self.int += point
+    if stat_name == 'luk':
+      self.luk += point
+
   def get_att(self):
     return self.att + int(self.att * self.lv / 200 * 20 / 100)  + (int(self.get_main_stat() / 4.0) + (self.get_sub_stat() / 16.0) + 1)
       
@@ -132,3 +142,15 @@ class Player():
       return True, f'moved to {a.name}'
     else:
       return False, 'cannot find that map'
+
+  def plus_stat_point(self, stat_name, point):
+    if self.job.name != 'beginner':
+      if pts <= self.free_stat_point:
+        self.set_stat_point(name, point)
+        self.free_stat_point -= point
+        return True, f'added {point} to your {stat_name}'
+      else:
+        return False, 'not enough point'
+    else:
+      return False, 'beginner cant add point, msd advance for job advance'
+  
