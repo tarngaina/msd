@@ -118,3 +118,10 @@ class Player():
     if self.xp < constant.TableExp[self.lv]:
       self.xp = constant.TableExp[self.lv]
     self.hp = self.max_hp
+
+  def get_xp_percent(self):
+    xp_last_lvl = constant.TableExp[self.lvl-1]
+    xp_earned = self.xp - exp_last_lvl
+    xp_total = constant.TableExp[lvl] - exp_last_lvl
+    return xp_earned / xp_total * 100
+
