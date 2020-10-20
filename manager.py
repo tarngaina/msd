@@ -74,27 +74,7 @@ def get_xp_rate_by_level(p, a):
   return 1.2
   
 def sell_item(p, id, num):
-  num = int(num)
-  if num < 1:
-    return False, 'invalid number'
-  i = item.find(id)
-  if i == None:
-    i = item.find_name(id)
-  if i != None:
-    if i.id in p.inventory:
-      if p.inventory[i.id] >= num:
-        p.inventory[i.id] -= num
-        meso = i.price * num
-        p.meso += meso
-        if p.inventory[i.id] == 0:
-          p.inventory.pop(i.id)
-        return True, f'sold {num} {i.name} for {meso}meso'
-      else:
-        return False, 'you dont have enough number of this item'
-    else:
-      return False, 'you dont have that item'
-  else:
-    return False, 'item not found'
+  pass
     
 def equip_item(p, i):
   if i.type == constant.ItemType.equip:
@@ -104,3 +84,24 @@ def equip_item(p, i):
       pass
   else:
     return False, 'cannot equip this item'
+
+def go_area(p, id):
+  a = area.find(id)
+  if a != None:
+    p.area = a
+    return True, f'moved to {a.name}'
+  else:
+    return False, 'cannot find that map'
+
+def plus_stat_point(p, stat_name, point):
+  if p.job.name != 'beginner':
+    if point <= p.free_stat_point:
+      p.set_stat_point(name, point)
+      p.free_stat_point -= point
+      return True, f'added {point} to your {stat_name}'
+    else:
+      return False, 'not enough point'
+  else:
+    return False, 'beginner cant add point, msd advance for job advance'
+  
+
