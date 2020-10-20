@@ -9,6 +9,10 @@ def find_name(name):
       return j
   return None
 
+def find(id):
+  a == find_name(name)
+  return a
+
 class Job():
   def __init__(self, name, job_grade, main_stat, sub_stat, previous):
     self.name = name
