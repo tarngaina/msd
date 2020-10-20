@@ -134,23 +134,3 @@ class Player():
     xp_earned = self.xp - exp_last_lvl
     xp_total = constant.TableExp[lvl] - exp_last_lvl
     return xp_earned / xp_total * 100
-
-  def go_area(self, id):
-    a = area.find(id)
-    if a != None:
-      self.area = a
-      return True, f'moved to {a.name}'
-    else:
-      return False, 'cannot find that map'
-
-  def plus_stat_point(self, stat_name, point):
-    if self.job.name != 'beginner':
-      if pts <= self.free_stat_point:
-        self.set_stat_point(name, point)
-        self.free_stat_point -= point
-        return True, f'added {point} to your {stat_name}'
-      else:
-        return False, 'not enough point'
-    else:
-      return False, 'beginner cant add point, msd advance for job advance'
-  
