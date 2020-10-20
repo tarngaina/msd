@@ -10,8 +10,8 @@ def find_name(name):
   return None
 
 def find(id):
-  a == find_name(name)
-  return a
+  j == find_name(name)
+  return j
 
 class Job():
   def __init__(self, name, job_grade, main_stat, sub_stat, previous):
