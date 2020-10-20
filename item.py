@@ -1,4 +1,3 @@
-import random
 import constant
 
 items = []
@@ -19,11 +18,20 @@ def find_name(name):
   return None
 
 class Item:
-  def __init__(self, id, name, type, price):
+  def __init__(self, id, name, type, price, **dic):
     self.id = id
     self.name = name
     self.type = type
     self.price = price
+    if type == constant.ItemType.consume:
+      if 'hp' in dic:
+        self.hp = dic['hp']
+    if type == constant.ItemType.equip:
+      self.lv = dic['lv']
+      if 'hp' in dic:
+        self.hp = dic['hp']
+      if 'att' in dic:
+        self.att = dic['att']
 
 add(
   Item(
@@ -87,5 +95,29 @@ add(
     name = 'starfish',
     type = constant.ItemType.etc,
     price = 280
+  )
+)
+
+
+add(
+  Item(
+    id = 'wpot',
+    name = 'white potion',
+    type = constant.ItemType.consume,
+    price = 300,
+    hp = 300
+  )
+)
+
+
+add(
+  Item(
+    id = 'sw',
+    name = 'sword',
+    type = constant.ItemType.equip,
+    price = 280,
+    lv = 1,
+    att = 5,
+    hp = 100
   )
 )
