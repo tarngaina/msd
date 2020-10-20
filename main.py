@@ -1,1 +1,1 @@
-import bot2
+import bot
