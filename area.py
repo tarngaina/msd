@@ -5,7 +5,7 @@ areas = []
 def add(m):
   areas.append(m)
 
-def find(id):
+def find_id(id):
   for m in areas:
     if m.id == id:
       return m
@@ -16,6 +16,12 @@ def find_name(name):
     if m.name.lower() == name.lower():
       return m
   return None
+
+def find(id):
+  a = find_id(id)
+  if a == None:
+    a == find_name(id)
+  return a
 
 class Area():
   def __init__(self, id, name, is_safe, **dic):
