@@ -7,10 +7,10 @@ def check_cd(p, key):
   if sec > constant.CDs[key]:
     p.cd[key] = now
     return True, 0
-  return False, f'you need to wait more {int(constant.CDs[key] - sec)}s'
+  return False, f' you need to wait more {int(constant.CDs[key] - sec)}s'
 
 def farm(p):
-  if not p.area.is_town:
+  if not p.area.is_safe:
     s = f' farmed around {p.area.name}\n'
     hp = get_hp_lost(p.get_att(), p.area.mob_att, p.area.mob_hp)
     die = p.get_hit(hp)
@@ -97,12 +97,6 @@ def get_xp_rate_by_level(plvl, alvl):
     return 0.95
   return 1.2
   
-def get_xp_percent(xp, lvl):
-  exp_last_lvl = constant.TableExp[lvl-1]
-  exp_earned = xp - exp_last_lvl
-  exp_total = constant.TableExp[lvl] - exp_last_lvl
-  return exp_earned / exp_total * 100
-
 def sell_item(p, id, num):
   num = int(num)
   if num < 1:
