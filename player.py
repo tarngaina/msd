@@ -1,20 +1,19 @@
 import datetime
-import constant, pref, area
+import job, constant, pref, area
 
 players = []
 
 def find(id):
-	for p in players:
-		if p.id == id:
-			return p
-	p = pref.load(id)
-	return p
+  for p in players:
+    if p.id == id:
+    return p
+  p = pref.load(id)
+  return p
 	
 def add(p):
   players.append(p)
 
 class Player():
-  
   def __init__(self, id):
     self.id = id
     self.hp = 100
@@ -26,11 +25,8 @@ class Player():
     self.dex = 5
     self.int = 5
     self.luk = 5
-    self.main_stat = 'str'
-    self.sub_stat = 'str'
     self.free_stat_point = 0
-    self.job = 'beginner'
-    self.job_grade = 0
+    self.job = job.jobs[0]
     self.area = area.areas[0]
     self.inventory = {
       'equip':{},
@@ -50,37 +46,34 @@ class Player():
     dic['dex'] = self.dex
     dic['int'] = self.int
     dic['luk'] = self.luk
-    dic['main_stat'] = self.main_stat
-    dic['sub_stat'] = self.sub_stat
     dic['free_stat_point'] = self.free_stat_point
-    dic['job'] = self.job
-    dic['job_grade'] = self.job_grade
-    dic['area'] = self.area  
+    dic['job'] = self.job.name
+    dic['area'] = self.area.id
     return dic
 
   def inventory_to_dic(self):
     pass
 
   def get_main_stat(self):
-    if main_stat == 'str':
+    if self.job.main_stat == 'str':
       return self.str
-    if main_stat == 'dex':
+    if self.job.main_stat == 'dex':
       return self.dex
-    if main_stat == 'int':
+    if self.job.main_stat == 'int':
       return self.int
     return self.luk
 
   def get_sub_stat(self):
-    if sub_stat == 'str':
+    if self.job.sub_stat == 'str':
       return self.str
-    if sub_stat == 'dex':
+    if self.job.sub_stat == 'dex':
       return self.dex
-    if sub_stat == 'int':
+    if self.job.sub_stat == 'int':
       return self.int
     return self.luk
 
   def get_att(self):
-    return self.att + int(self.att * self.lv / 200 * 20 / 100)  + (int(self.get_main_stat / 4.0) + (self.get_sub_stat / 16.0) + 1)
+    return self.att + int(self.att * self.lv / 200 * 20 / 100)  + (int(self.get_main_stat() / 4.0) + (self.get_sub_stat() / 16.0) + 1)
       
   def gain_meso(self, meso):
     self.meso += meso
@@ -108,11 +101,8 @@ class Player():
     else:
       return
     
-  def gain_job(self, job, joblv):
-    self.job_grade = job_grade
-    self.job = job
-    self.main_stat = constant.Job.main_stat[job]
-    self.sub_stat = constant.Job.sub_stat[job]
+  def gain_job(self, name)
+    self.job = job.find_name(name)
     self.free_stat_point += 10
 
   def get_hit(self, hp):
