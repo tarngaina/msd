@@ -66,15 +66,6 @@ class Player():
     self.main_stat = constant.Job.main_stat[job]
     self.stat[self.main_stat] += 10
 
-  def plus_stat_point(self, stat_name, pts):
-    if self.joblv > 0:
-      if pts <= self.stat_point:
-        self.stat_point -= pts
-        self.stat[stat_name] += pts
-        return True, ''
-      return False, 'not enough point'
-    return False, 'beginner cannot add point'
-    
   def get_hit(self, hp):
     self.hp -= hp
     if self.hp <= 0:

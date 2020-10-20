@@ -6,14 +6,17 @@ items = []
 def add(i):
   items.append(i)
 
-def nothing():
-  return items[0]
-
 def find(id):
   for item in items:
     if id == item.id:
       return item
-  return nothing()
+  return None
+  
+def find_name(name):
+  for item in items:
+    if name == item.name:
+      return item
+  return None
 
 class Item:
   def __init__(self, id, name, type, price):
@@ -52,5 +55,37 @@ add(
     name = 'lizard tail',
     type = constant.ItemType.etc,
     price = 120
+  )
+)
+add(
+  Item(
+    id = 'bwing',
+    name = 'bat wing',
+    type = constant.ItemType.etc,
+    price = 150
+  )
+)
+add(
+  Item(
+    id = 'lskin',
+    name = 'ligator skin',
+    type = constant.ItemType.etc,
+    price = 230
+  )
+)
+add(
+  Item(
+    id = 'ribbon',
+    name = 'pig ribbon',
+    type = constant.ItemType.etc,
+    price = 180
+  )
+)
+add(
+  Item(
+    id = 'starfish',
+    name = 'starfish',
+    type = constant.ItemType.etc,
+    price = 280
   )
 )
