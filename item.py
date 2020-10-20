@@ -5,7 +5,7 @@ items = []
 def add(i):
   items.append(i)
 
-def find(id):
+def find_id(id):
   for item in items:
     if id == item.id:
       return item
@@ -16,6 +16,12 @@ def find_name(name):
     if name == item.name:
       return item
   return None
+
+def find(name):
+  i == find_id(id)
+  if i == None:
+    i == find_name(name)
+  return i
 
 class Item:
   def __init__(self, id, name, type, price, **dic):
