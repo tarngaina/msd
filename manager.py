@@ -41,18 +41,6 @@ def farm(p):
   else:
     return False, 'dumbass, go to hunting maps first, type msd map list'
 
-def go_to_area(p, id):
-  if id != p.area.id and id != p.area.name:
-    a = area.find(id)
-    if a == None:
-      a = area.find_name(id)
-    if a != None:
-      p.area = a
-      return True, f'moved to {a.name}'
-    else:
-      return False, 'cannot find that map'
-  else:
-    return False, 'already in dat map'
   
 def advance_job(p, job):
   if p.joblv == 0:
