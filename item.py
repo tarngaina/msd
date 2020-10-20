@@ -112,7 +112,7 @@ add(
 
 add(
   Item(
-    id = 'sw',
+    id = '',
     name = 'sword',
     type = constant.ItemType.equip,
     price = 280,
