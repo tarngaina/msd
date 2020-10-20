@@ -41,7 +41,6 @@ def farm(p):
   else:
     return False, 'dumbass, go to hunting maps first, type msd map list'
 
-  
 def advance_job(p, job):
   if p.joblv == 0:
     if job in constant.Job.jobs:
@@ -56,33 +55,22 @@ def advance_job(p, job):
     else:
       return False, 'wrong type job'
       
-def plus_stat_point(p, stat_name, pts):
-  if p.joblv > 0:
-    if pts <= p.stat_point:
-      p.stat[stat_name] += pts
-      p.stat_point -= pts
-      return True, f'added {pts} to your {stat_name}'
-    else:
-      return False, 'not enough point'
-  else:
-    return False, 'beginner cant add point, msd advjob for job advance'
-  
-def get_hp_lost(att, mob_att, mob_hp):
-  if att >= mob_hp * 5:
+def get_hp_lost(p, a):
+  if p.att >= a.hp * 4:
     return 1
-  hp_lost = mob_att * random.randint(90, 110) / 100
-  hp_lost += hp_lost * random.randint(1, 100) / 100
+  hp_lost = a.att * random.randint(80, 120) / 100
+  if a.lv < p.lv+2:
+    hp_lost += hp_lost * random.randint(1, 100) / 100
   hp_lost = int(hp_lost)
   return hp_lost
   
-  
-def get_xp_rate_by_level(plvl, alvl):
-  if plvl == alvl:
-    return 1.1
-  if plvl < alvl - 8:
+def get_xp_rate_by_level(p, a):
+  if p.lv <= a.lv - 8:
     return 0.8
-  if plvl < alvl - 4:
+  if p.lv <= a.lv - 4:
     return 0.95
+  if p.lv == a.lv:
+    return 1.05
   return 1.2
   
 def sell_item(p, id, num):
