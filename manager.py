@@ -12,28 +12,28 @@ def check_cd(p, key):
 def farm(p):
   if not p.area.is_safe:
     s = f' farmed around {p.area.name}\n'
-    hp = get_hp_lost(p.get_att(), p.area.mob_att, p.area.mob_hp)
+    hp = get_hp_lost(p, p.area)
     die = p.get_hit(hp)
     if not die:
       s += f'you lost {hp}hp: {p.hp}/{p.max_hp}\n'
       meso = p.area.meso
       meso += meso * random.randint(1, 50) / 100
       meso = int(meso)
-      xp = p.area.xp * p.area.xp_rate * get_xp_rate_by_level(p.lvl, p.area.lvl)
+      xp = p.area.xp * p.area.xp_rate * get_xp_rate_by_level(p, a)
       xp += xp * random.randint(1, random.randint(1, 100)) / 100
       xp = int(xp)
       p.gain_meso(meso) 
-      lvlup = p.gain_xp(xp)
+      lvup = p.gain_xp(xp)
       s += (
         f'you get {meso}meso\n'
-        f'you get {xp}xp: {get_xp_percent(p.xp, p.lvl):.2f}%'
+        f'you get {xp}xp: {p.get_xp_percent():.2f}%'
         )
-      if lvlup:
-        s += f'\ngratz, you level up to {p.lvl}'
+      if lvup:
+        s += f'\ngratz, you level up to {p.lv}'
       if random.randint(0, 100) > 15:
         i = p.area.random_item()
         num = random.randint(1, 5)
-        p.gain_item(i.id, num)
+        p.gain_item(i, num)
         s += f'\nand you get {num} {i.name}'
       return True, s
     else:
@@ -41,19 +41,19 @@ def farm(p):
   else:
     return False, 'dumbass, go to hunting maps first, type msd map list'
 
-def advance_job(p, job):
-  if p.joblv == 0:
-    if job in constant.Job.jobs:
-      if p.lvl > 9:
-        if p.job == 'beginner':
-          p.gain_job(job, 1)
-          return True, f'advanced to {job}'
-        else:
-          return False, 'you already in job'
+def advance_job(p, id):
+  j = job.find(id)
+  if j != None:
+    if p.job.name == j.previous:
+      if p.lv >= j.lv:
+        p.gain_job(j)
+        return True, f'you became {p.job.name}'
       else:
-        return False, 'not enough lvl'
+        return False, f'not enough level, you need to reach lv{j.lv}'
     else:
-      return False, 'wrong type job'
+      return False, f'cant advance to {j.name} from {p.job.name}'
+  else:
+    return False, f'there is no job named that, type msd job list for list of jobs'
       
 def get_hp_lost(p, a):
   if p.att >= a.hp * 4:
