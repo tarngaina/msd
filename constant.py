@@ -108,3 +108,27 @@ class ItemType:
   equip = 'equip'
   consume = 'consume'
   etc = 'etc'
+
+class EquipType:
+  weapon = 'weapon'
+  hat = 'hat'
+  top = 'top'
+  bottom = 'bottom'
+  cape = 'cape'
+  shoe = 'shoe'
+  glove = 'glove'
+  shoulder = 'shoudler'
+  
+class WeaponType:
+  sword = 'sword'
+  axe = 'axe'
+  spear = 'spear'
+  bow = 'bow'
+  crossbow = 'crossbow'
+  wand = 'wand'
+  staff = 'staff'
+  claw = 'claw'
+  dagger = 'dagger'
+  knuckle = 'knuckle'
+  gun = 'gun'
+  

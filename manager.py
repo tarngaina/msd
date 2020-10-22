@@ -1,5 +1,5 @@
 import random, datetime
-import constant, item, area
+import constant, item, area, job
 
 def check_cd(p, key):
   now = datetime.datetime.now()
@@ -19,7 +19,7 @@ def farm(p):
       meso = p.area.meso
       meso += meso * random.randint(1, 50) / 100
       meso = int(meso)
-      xp = p.area.xp * p.area.xp_rate * get_xp_rate_by_level(p, a)
+      xp = p.area.xp * p.area.xp_rate * get_xp_rate_by_level(p, p.area)
       xp += xp * random.randint(1, random.randint(1, 100)) / 100
       xp = int(xp)
       p.gain_meso(meso) 
@@ -30,16 +30,21 @@ def farm(p):
         )
       if lvup:
         s += f'\ngratz, you level up to {p.lv}'
-      if random.randint(0, 100) > 15:
-        i = p.area.random_item()
-        num = random.randint(1, 5)
-        p.gain_item(i, num)
-        s += f'\nand you get {num} {i.name}'
+      i = p.area.random_item()
+      if i.type == constant.ItemType.equip:
+        if random.randint(0, 100) > 50:
+          p.gain_item(i, 1)
+          s += f'\nand you get {i.name}'
+      else:
+        if random.randint(0, 100) > 30:
+          num = random.randint(1, 5)
+          p.gain_item(i, num)
+          s += f'\nand you get {num} {i.name}'
       return True, s
     else:
       return False, f'you lost {hp} and died'
   else:
-    return False, 'dumbass, go to hunting maps first, type msd map list'
+    return False, ' dumbass, go to hunting maps first, type msd map list'
 
 def advance_job(p, id):
   j = job.find(id)
@@ -74,7 +79,37 @@ def get_xp_rate_by_level(p, a):
   return 1.2
   
 def sell_item(p, id, num):
-  pass
+  num = int(num)
+  i = item.find(id)
+  if i == None:
+    i = p.find_equip(id)
+  if i != None:
+    if i.type == constant.ItemType.equip:
+      p.inventory['equip'].remove(i)
+      p.meso += i.price
+      return True, f' you sold {i.name} for {i.price}meso'
+    elif i.type == constant.ItemType.consume:
+      if p.inventory['consume'][i.id] <= num:
+        p.inventory['consume'][i.id] -= num
+        meso = i.price * num
+        p.meso += meso
+        if p.inventory['consume'][i.id] == 0:
+          p.inventory['consume'].pop(i.id)
+        return True, f' you sold {num} {i.name} for {meso}meso'
+      else:
+        return False, f' you dont have {num} of {i.name}'
+    else:
+      if p.inventory['etc'][i.id] <= num:
+        p.inventory['etc'][i.id] -= num
+        meso = i.price * num
+        p.meso += meso
+        if p.inventory['etc'][i.id] == 0:
+          p.inventory['etc'].pop(i.id)
+        return True, f' you sold {num} {i.name} for {meso}meso'
+      else:
+        return False, f' you dont have {num} of {i.name}'
+  else:
+    return False, ' item not found'
     
 def equip_item(p, i):
   if i.type == constant.ItemType.equip:
@@ -96,7 +131,7 @@ def go_area(p, id):
 def plus_stat_point(p, stat_name, point):
   if p.job.name != 'beginner':
     if point <= p.free_stat_point:
-      p.set_stat_point(name, point)
+      p.set_stat(stat_name, point)
       p.free_stat_point -= point
       return True, f'added {point} to your {stat_name}'
     else:

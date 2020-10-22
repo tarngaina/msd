@@ -2,24 +2,25 @@ import os.path
 import player, area
 import json
 
-
 def save(id):
   p = player.find(id)
+  path = f'data/{id}.json'
   if p != None:
-    f = open(f'data/{id}.json', 'w+')
+    f = open(path, 'w+')
     json.dump(p.to_dict(), f)
     f.close()
 
 
 def load(id):
-  f = None
-  if not os.path.isfile(f'data/{id}'):
-    f = open(f'data/{id}.json', 'w+')
-  else:
-    f = open(f'data/{id}.json', 'r')
   p = player.Player(id)
-  p.from_dict(json.load(f))
-  f.close()
+  path = f'data/{id}.json'
+  if not os.path.isfile(path):
+    f = open(path, 'w+')
+    json.dump(p.to_dict(), f)
+    f.close()
+  else:
+    f = open(path, 'r')
+    p.from_dict(json.load(f))
+    f.close()
   player.add(p)
-  save(id)
   return p

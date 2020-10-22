@@ -1,12 +1,12 @@
 import datetime
-import job, constant, pref, area
+import job, item, constant, pref, area
 
 players = []
 
 def find(id):
   for p in players:
     if p.id == id:
-    return p
+      return p
   p = pref.load(id)
   return p
 	
@@ -30,7 +30,7 @@ class Player():
     self.job = job.jobs[0]
     self.area = area.areas[0]
     self.inventory = {
-      'equip':{},
+      'equip':[],
       'consume':{},
       'etc':{}
     }
@@ -50,6 +50,7 @@ class Player():
     dic['free_stat_point'] = self.free_stat_point
     dic['job'] = self.job.name
     dic['area'] = self.area.id
+    dic['inventory'] = self.inventory_to_dict()
     return dic
 
   def from_dict(self, dic):
@@ -65,9 +66,27 @@ class Player():
     self.free_stat_point = dic['free_stat_point']
     self.job = job.find(dic['job'])
     self.area = area.find(dic['area'])
+    self.inventory_from_dict(dic['inventory'])
 
-  def inventory_to_dic(self):
-    pass
+  def inventory_to_dict(self):
+    dic = {}
+    dic['etc'] = self.inventory['etc']
+    dic['consume'] = self.inventory['consume']
+    dic['equip'] = []
+    for i in self.inventory['equip']:
+      dic['equip'].append(i.name)
+    return dic
+      
+  def inventory_from_dict(self, dic):
+    self.inventory['etc'] = dic['etc']
+    self.inventory['consume'] = dic['consume']
+    for name in dic['equip']:
+      i = item.find(name)
+      self.inventory['equip'].append(i)
+    
+  def find_equip(self, id):
+    id = int(id[5:])
+    return self.inventory['equip'][id]
 
   def get_main_stat(self):
     if self.job.main_stat == 'str':
@@ -98,8 +117,11 @@ class Player():
       self.luk += point
 
   def get_att(self):
-    return self.att + int(self.att * self.lv / 200 * 20 / 100)  + (int(self.get_main_stat() / 4.0) + (self.get_sub_stat() / 16.0) + 1)
-      
+    att = self.att + (self.get_main_stat() / 4.0) + (self.get_sub_stat() / 16.0)
+    att += att * self.lv / 10
+    att = int(att)
+    return att
+    
   def gain_meso(self, meso):
     self.meso += meso
 	  
@@ -128,9 +150,11 @@ class Player():
     else:
       self.inventory['equip'].append(item)
     
-  def gain_job(self, name)
-    self.job = job.find_name(name)
+  def gain_job(self, job):
+    self.job = job
     self.free_stat_point += 10
+    self.hp += 100
+    self.att += self.job.job_grade * 5
 
   def get_hit(self, hp):
     self.hp -= hp
@@ -147,7 +171,7 @@ class Player():
     self.hp = self.max_hp
 
   def get_xp_percent(self):
-    xp_last_lvl = constant.TableExp[self.lvl-1]
-    xp_earned = self.xp - exp_last_lvl
-    xp_total = constant.TableExp[lvl] - exp_last_lvl
+    xp_last_lv = constant.TableExp[self.lv-1]
+    xp_earned = self.xp - xp_last_lv
+    xp_total = constant.TableExp[self.lv] - xp_last_lv
     return xp_earned / xp_total * 100

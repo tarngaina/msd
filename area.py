@@ -2,25 +2,25 @@ import item, random
 
 areas = []
 
-def add(m):
-  areas.append(m)
+def add(a):
+  areas.append(a)
 
 def find_id(id):
-  for m in areas:
-    if m.id == id:
-      return m
+  for a in areas:
+    if a.id == id:
+      return a
   return None
 
 def find_name(name):
-  for m in areas:
-    if m.name.lower() == name.lower():
-      return m
+  for a in areas:
+    if a.name.lower() == name.lower():
+      return a
   return None
 
 def find(id):
   a = find_id(id)
   if a == None:
-    a == find_name(id)
+    a = find_name(id)
   return a
 
 class Area():
@@ -53,8 +53,8 @@ add(
     name = 'henesys',
     is_safe = False,
     lv = 1,
-    att = 23,
-    hp = 20,
+    att = 24,
+    hp = 11,
     xp = 33,
     xp_rate = 1.4,
     meso = 31,
@@ -71,14 +71,14 @@ add(
     is_safe = False,
     lv = 10,
     att = 99,
-    hp = 150,
+    hp = 90,
     xp = 198,
     xp_rate = 1.6,
     meso = 63,
     items = [
       item.find('sliquid'),
       item.find('ltail')
-    ]
+    ] + item.get_burning_set()
   )
 )
 add(
@@ -88,14 +88,14 @@ add(
     is_safe = False,
     lv = 20,
     att = 154,
-    hp = 350,
+    hp = 209,
     xp = 463,
     xp_rate = 1.8,
     meso = 150,
     items = [
       item.find('bwing'),
       item.find('lskin')
-    ]
+    ] + item.get_burning_set()
   )
 )
 add(
@@ -105,13 +105,13 @@ add(
     is_safe = False,
     lv = 30,
     att = 223,
-    hp = 650,
+    hp = 468,
     xp = 890,
     xp_rate = 1.9,
     meso = 230,
     items = [
       item.find('ribbon'),
       item.find('starfish')
-    ]
+    ] + item.get_burning_set()
   )
 )
