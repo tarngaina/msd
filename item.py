@@ -22,6 +22,11 @@ def find(id):
   if i == None:
     i = find_name(id)
   return i
+  
+def from_dict(dic):
+  i = find(dic['name'])
+  return i
+
 
 class Item:
   def __init__(self, id, name, type, price, **dic):
@@ -49,13 +54,14 @@ class Item:
         self.int = dic['int']
       if 'luk' in dic:
         self.luk = dic['luk']
-  
+        
   def to_dict(self):
-    print(vars(self))
+    dic = {}
+    dic['name'] = self.name
+    return dic
     
-  def from_dict(self, dic):
-    pass
-
+  def get_name(self):
+    return self.name
 
 add(
   Item(
@@ -302,118 +308,54 @@ add(
 add(
   Item(
     id = '',
-    name = 'burning hat',
+    name = 'Frozen Hat',
     type = constant.ItemType.equip,
     price = 1,
     equip_type = constant.EquipType.hat,
     lv = 10,
-    att = 1,
-    str = 5,
-    dex = 5,
-    int = 5,
-    luk = 5,
-    hp = 50
+    att = 2,
+    str = 10,
+    dex = 10,
+    int = 10,
+    luk = 10,
+    hp = 100
   )
 )
 add(
   Item(
     id = '',
-    name = 'burning top',
+    name = 'Frozen Suit',
     type = constant.ItemType.equip,
     price = 1,
-    equip_type = constant.EquipType.top,
+    equip_type = constant.EquipType.overall,
     lv = 10,
-    att = 1,
-    str = 5,
-    dex = 5,
-    int = 5,
-    luk = 5,
-    hp = 50
+    att = 2,
+    str = 10,
+    dex = 10,
+    int = 10,
+    luk = 10,
+    hp = 100,
   )
 )
 add(
   Item(
     id = '',
-    name = 'burning bottom',
-    type = constant.ItemType.equip,
-    price = 1,
-    equip_type = constant.EquipType.bottom,
-    lv = 10,
-    att = 1,
-    str = 5,
-    dex = 5,
-    int = 5,
-    luk = 5,
-    hp = 50
-  )
-)
-add(
-  Item(
-    id = '',
-    name = 'burning shoe',
-    type = constant.ItemType.equip,
-    price = 1,
-    equip_type = constant.EquipType.shoe,
-    lv = 10,
-    att = 1,
-    str = 5,
-    dex = 5,
-    int = 5,
-    luk = 5,
-    hp = 50
-  )
-)
-add(
-  Item(
-    id = '',
-    name = 'burning glove',
-    type = constant.ItemType.equip,
-    price = 1,
-    equip_type = constant.EquipType.glove,
-    lv = 10,
-    att = 1,
-    str = 5,
-    dex = 5,
-    int = 5,
-    luk = 5,
-    hp = 50
-  )
-)
-add(
-  Item(
-    id = '',
-    name = 'burning cape',
+    name = 'Frozen Cape',
     type = constant.ItemType.equip,
     price = 1,
     equip_type = constant.EquipType.cape,
     lv = 10,
-    att = 1,
-    str = 5,
-    dex = 5,
-    int = 5,
-    luk = 5,
-    hp = 50
+    att = 2,
+    str = 10,
+    dex = 10,
+    int = 10,
+    luk = 10,
+    hp = 100
   )
 )
-add(
-  Item(
-    id = '',
-    name = 'burning shoulder',
-    type = constant.ItemType.equip,
-    price = 1,
-    equip_type = constant.EquipType.shoulder,
-    lv = 10,
-    att = 1,
-    str = 5,
-    dex = 5,
-    int = 5,
-    luk = 5,
-    hp = 50
-  )
-)
-def get_burning_set():
+def get_frozen_set():
   s = []
   for i in items:
-    if i.name.lower().startswith('burning'):
+    if i.name.lower().startswith('frozen'):
       s.append(i)
   return s

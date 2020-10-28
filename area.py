@@ -31,7 +31,6 @@ class Area():
     if not self.is_safe:
       self.lv = dic['lv']
       self.att = dic['att']
-      self.hp = dic['hp']
       self.xp = dic['xp']
       self.xp_rate = dic['xp_rate']
       self.meso = dic['meso']
@@ -54,7 +53,6 @@ add(
     is_safe = False,
     lv = 1,
     att = 24,
-    hp = 11,
     xp = 33,
     xp_rate = 1.4,
     meso = 31,
@@ -66,12 +64,11 @@ add(
 )
 add(
   Area(
-    id = 'ef',
+    id = 'ell',
     name = 'ellinia',
     is_safe = False,
     lv = 10,
     att = 99,
-    hp = 90,
     xp = 198,
     xp_rate = 1.6,
     meso = 63,
@@ -88,7 +85,6 @@ add(
     is_safe = False,
     lv = 20,
     att = 154,
-    hp = 209,
     xp = 463,
     xp_rate = 1.8,
     meso = 150,
@@ -105,7 +101,6 @@ add(
     is_safe = False,
     lv = 30,
     att = 223,
-    hp = 468,
     xp = 890,
     xp_rate = 1.9,
     meso = 230,

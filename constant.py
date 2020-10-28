@@ -112,6 +112,7 @@ class ItemType:
 class EquipType:
   weapon = 'weapon'
   hat = 'hat'
+  overall = 'overall'
   top = 'top'
   bottom = 'bottom'
   cape = 'cape'

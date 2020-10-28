@@ -16,11 +16,11 @@ def add(p):
 class Player():
   def __init__(self, id):
     self.id = id
-    self.hp = 100
-    self.max_hp = 100
     self.meso = 0
     self.xp = 0
     self.lv = 1
+    self.hp = 100
+    self.max_hp = 100
     self.att = 10
     self.str = 5
     self.dex = 5
@@ -34,6 +34,14 @@ class Player():
       'consume':{},
       'etc':{}
     }
+    self.weapon = None
+    self.hat = None
+    self.top = None
+    self.bottom = None
+    self.cape = None
+    self.glove = None
+    self.shoe = None
+    self.shoulder = None
     self.cd = {'farm':datetime.datetime.min}
 
   def to_dict(self):
@@ -43,6 +51,7 @@ class Player():
     dic['meso'] = self.meso
     dic['xp'] = self.xp
     dic['lv'] = self.lv
+    dic['att'] = self.att
     dic['str'] = self.str
     dic['dex'] = self.dex
     dic['int'] = self.int
@@ -51,6 +60,7 @@ class Player():
     dic['job'] = self.job.name
     dic['area'] = self.area.id
     dic['inventory'] = self.inventory_to_dict()
+    dic['equip'] = self.equip_to_dict()
     return dic
 
   def from_dict(self, dic):
@@ -59,6 +69,7 @@ class Player():
     self.meso = dic['meso']
     self.xp = dic['xp']
     self.lv = dic['lv']
+    self.att = dic['att']
     self.str = dic['str']
     self.dex = dic['dex']
     self.int = dic['int']
@@ -67,26 +78,69 @@ class Player():
     self.job = job.find(dic['job'])
     self.area = area.find(dic['area'])
     self.inventory_from_dict(dic['inventory'])
-
+    self.equip_from_dict(dic['equip'])
+    
   def inventory_to_dict(self):
     dic = {}
     dic['etc'] = self.inventory['etc']
     dic['consume'] = self.inventory['consume']
     dic['equip'] = []
     for i in self.inventory['equip']:
-      dic['equip'].append(i.name)
+      dic['equip'].append(i.to_dict())
     return dic
       
   def inventory_from_dict(self, dic):
     self.inventory['etc'] = dic['etc']
     self.inventory['consume'] = dic['consume']
-    for name in dic['equip']:
-      i = item.find(name)
-      self.inventory['equip'].append(i)
+    for d in dic['equip']:
+      self.inventory['equip'].append(item.from_dict(d))
+  
+  def equip_to_dict(self):
+    dic = {}
+    if self.weapon != None:
+      dic['weapon'] = self.weapon.to_dict()
+    if self.hat != None:
+      dic['hat'] = self.hat.to_dict()
+    if self.top != None:
+      dic['top'] = self.top.to_dict()
+    if self.bottom != None:
+      dic['bottom'] = self.bottom.to_dict()
+    if self.shoe != None:
+      dic['shoe'] = self.shoe.to_dict()
+    if self.glove != None:
+      dic['glove'] = self.glove.to_dict()
+    if self.cape != None:
+      dic['cape'] = self.cape.to_dict()
+    if self.shoulder != None:
+      dic['shoulder'] = self.shoulder.to_dict()
+    return dic
     
+  def equip_from_dict(self, dic):
+    if 'weapon' in dic:
+      self.weapon = item.from_dict(dic['weapon'])
+    if 'hat' in dic:
+      self.hat = item.from_dict(dic['hat'])
+    if 'top' in dic:
+      self.top = item.from_dict(dic['top'])
+    if 'bottom' in dic:
+      self.bottom = item.from_dict(dic['bottom'])
+    if 'shoe' in dic:
+      self.shoe = item.from_dict(dic['shoe'])
+    if 'cape' in dic:
+      self.cape = item.from_dict(dic['cape'])
+    if 'glove' in dic:
+      self.glove = item.from_dict(dic['glove'])
+    if 'shoulder' in dic:
+      self.shoulder = item.from_dict(dic['shoulder'])
+  
   def find_equip(self, id):
-    id = int(id[5:])
-    return self.inventory['equip'][id]
+    for i in self.inventory['equip']:
+      if i.name.lower() == id.lower():
+        return i
+    if id.startswith('equip'):
+      id = int(id[5:])
+      return self.inventory['equip'][id]
+    return None
 
   def get_main_stat(self):
     if self.job.main_stat == 'str':
@@ -118,7 +172,7 @@ class Player():
 
   def get_att(self):
     att = self.att + (self.get_main_stat() / 4.0) + (self.get_sub_stat() / 16.0)
-    att += att * self.lv / 10
+    att += self.att * self.lv / 10
     att = int(att)
     return att
     
@@ -164,7 +218,7 @@ class Player():
     return False
       
   def die(self):
-    self.xp -= self.xp * 18 / 100
+    self.xp -= self.xp * 36 / 100
     self.xp = int(self.xp)
     if self.xp < constant.TableExp[self.lv]:
       self.xp = constant.TableExp[self.lv]
@@ -175,3 +229,76 @@ class Player():
     xp_earned = self.xp - xp_last_lv
     xp_total = constant.TableExp[self.lv] - xp_last_lv
     return xp_earned / xp_total * 100
+
+  def equip_item(self, item):
+    if item.equip_type == constant.EquipType.weapon:
+      self.remove_item(self.weapon)
+      self.weapon = item
+      self.apply_item(self.weapon)
+    elif item.equip_type == constant.EquipType.hat:
+      self.remove_item(self.hat)
+      self.hat = item
+      self.apply_item(self.hat)
+    elif item.equip_type == constant.EquipType.overall:
+      self.remove_item(self.top)
+      self.top = item
+      self.apply_item(self.top)
+      self.remove_item(self.bottom)
+      self.bottom = None
+    elif item.equip_type == constant.EquipType.top:
+      self.remove_item(self.top)
+      self.top = item
+      self.apply_item(self.top)
+    elif item.equip_type == constant.EquipType.bottom:
+      self.remove_item(self.bottom)
+      self.bottom = item
+      self.apply_item(self.bottom)
+    elif item.equip_type == constant.EquipType.cape:
+      self.remove_item(self.cape)
+      self.cape = item
+      self.apply_item(self.cape)
+    elif item.equip_type == constant.EquipType.shoe:
+      self.remove_item(self.shoe)
+      self.shoe = item
+      self.apply_item(self.shoe)
+    elif item.equip_type == constant.EquipType.glove:
+      self.remove_item(self.glove)
+      self.glove = item
+      self.apply_item(self.glove)
+    elif item.equip_type == constant.EquipType.shoulder:
+      self.remove_item(self.shoulder)
+      self.shoulder = item
+      self.apply_item(self.shoulder)
+      
+  def remove_item(self, item):
+    if item != None:
+      dic = vars(item)
+      if 'hp' in dic:
+        self.max_hp -= dic['hp']
+      if 'att' in dic:
+        self.att -= dic['att']
+      if 'str' in dic:
+        self.str -= dic['str']
+      if 'dex' in dic:
+        self.dex -= dic['dex']
+      if 'int' in dic:
+        self.int -= dic['int']
+      if 'luk' in dic:
+        self.luk -= dic['luk']
+      self.inventory['equip'].append(item)
+
+  def apply_item(self, item):
+    dic = vars(item)
+    if 'hp' in dic:
+      self.max_hp += dic['hp']
+    if 'att' in dic:
+      self.att += dic['att']
+    if 'str' in dic:
+      self.str += dic['str']
+    if 'dex' in dic:
+      self.dex += dic['dex']
+    if 'int' in dic:
+      self.int += dic['int']
+    if 'luk' in dic:
+      self.luk += dic['luk']
+    self.inventory['equip'].remove(item)

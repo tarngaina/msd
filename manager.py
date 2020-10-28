@@ -9,19 +9,69 @@ def check_cd(p, key):
     return True, 0
   return False, f' you need to wait more {int(constant.CDs[key] - sec)}s'
 
+def get_xp_on_farm(p):
+  gap = p.lv - p.area.lv
+  xp = p.area.xp
+  bonus_xp = 0
+  if gap < -15:
+    bonus_xp = xp * random.randint(-65, -30) / 100
+  if -15 <= gap < -8:
+    bonus_xp = xp * random.randint(-30, -15) / 100
+  if -8 <= gap < 0:
+    bonus_xp = xp * random.randint(-10, 0) / 100
+  if gap >= 0:
+    bonus_xp = xp * random.randint(0, 50) / 100
+  xp = xp * p.area.xp_rate + bonus_xp
+  xp = int(xp)
+  return xp
+  
+def get_meso_on_farm(p):
+  gap = p.lv - p.area.lv
+  meso = p.area.meso
+  bonus_meso = meso * random.randint(0, 30) / 100
+  if gap >= 20:
+    bonus_meso = meso * random.randint(-100, -50) / 100
+  meso = meso + bonus_meso
+  meso = int(meso)
+  return meso
+  
+def get_hp_lost_on_farm(p):
+  gap = p.lv - p.area.lv
+  hp_lost = p.area.att
+  if gap < -15:
+    bonus_hp_lost = hp_lost * random.randint(70, 400) / 100
+  if -15 <= gap < -8:
+    bonus_hp_lost = hp_lost * random.randint(30, 100) / 100
+  if -8 <= gap < 0:
+    bonus_hp_lost = hp_lost * random.randint(0, 60) / 100
+  if 0 <= gap < 15:
+    bonus_hp_lost = hp_lost * random.randint(-20, 20) / 100
+  if gap > 15:
+    bonus_hp_lost = hp_lost * random.randint(-99, -20) / 100
+  hp_lost = hp_lost + bonus_hp_lost
+  hp_lost = int(hp_lost)
+  return hp_lost
+  
+
+def get_item_on_farm(p):
+  i = p.area.random_item()
+  if i.type == constant.ItemType.equip:
+    if random.randint(0, 100) > 40:
+      return True, i, 1
+  else:
+    if random.randint(0, 100) > 20:
+      return True, i, random.randint(1, 21)
+  return False, None, 0
+
 def farm(p):
   if not p.area.is_safe:
     s = f' farmed around {p.area.name}\n'
-    hp = get_hp_lost(p, p.area)
+    hp = get_hp_lost_on_farm(p)
     die = p.get_hit(hp)
     if not die:
       s += f'you lost {hp}hp: {p.hp}/{p.max_hp}\n'
-      meso = p.area.meso
-      meso += meso * random.randint(1, 50) / 100
-      meso = int(meso)
-      xp = p.area.xp * p.area.xp_rate * get_xp_rate_by_level(p, p.area)
-      xp += xp * random.randint(1, random.randint(1, 100)) / 100
-      xp = int(xp)
+      meso = get_meso_on_farm(p)
+      xp = get_xp_on_farm(p)
       p.gain_meso(meso) 
       lvup = p.gain_xp(xp)
       s += (
@@ -30,19 +80,13 @@ def farm(p):
         )
       if lvup:
         s += f'\ngratz, you level up to {p.lv}'
-      i = p.area.random_item()
-      if i.type == constant.ItemType.equip:
-        if random.randint(0, 100) > 50:
-          p.gain_item(i, 1)
-          s += f'\nand you get {i.name}'
-      else:
-        if random.randint(0, 100) > 30:
-          num = random.randint(1, 5)
-          p.gain_item(i, num)
-          s += f'\nand you get {num} {i.name}'
+      chance, i, number = get_item_on_farm(p)
+      if chance:
+        p.gain_item(i, number)
+        s += f'\nand you get {number} {i.name}'
       return True, s
     else:
-      return False, f'you lost {hp} and died'
+      return False, f' lost {hp} and died'
   else:
     return False, ' dumbass, go to hunting maps first, type msd map list'
 
@@ -60,24 +104,7 @@ def advance_job(p, id):
   else:
     return False, f'there is no job named that, type msd job list for list of jobs'
       
-def get_hp_lost(p, a):
-  if p.att >= a.hp * 4:
-    return 1
-  hp_lost = a.att * random.randint(80, 120) / 100
-  if a.lv < p.lv+2:
-    hp_lost += hp_lost * random.randint(1, 100) / 100
-  hp_lost = int(hp_lost)
-  return hp_lost
-  
-def get_xp_rate_by_level(p, a):
-  if p.lv <= a.lv - 8:
-    return 0.8
-  if p.lv <= a.lv - 4:
-    return 0.95
-  if p.lv == a.lv:
-    return 1.05
-  return 1.2
-  
+      
 def sell_item(p, id, num):
   num = int(num)
   i = item.find(id)
@@ -111,14 +138,19 @@ def sell_item(p, id, num):
   else:
     return False, ' item not found'
     
-def equip_item(p, i):
-  if i.type == constant.ItemType.equip:
-    if p.lvl < i.lvl:
-      pass
+def equip_item(p, id):
+  i = p.find_equip(id)
+  if i != None:
+    if p.lv >= i.lv:
+      if i.type == constant.EquipType.weapon:
+        if not i.weapon_type in p.job.weapon_types:
+          return False, ' you cant equip this weapon'
+      p.equip_item(i)
+      return True, f' equipped {i.name}'
     else:
-      pass
+      return False, ' not enough level'
   else:
-    return False, 'cannot equip this item'
+    return False, ' equip not found'
 
 def go_area(p, id):
   a = area.find(id)
