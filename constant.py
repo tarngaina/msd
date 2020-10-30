@@ -1,3 +1,24 @@
+class ColorHex:
+  white = 0xffffff
+  red = 0xff0000
+  orange = 0xffa500
+  yellow = 0xffff00
+  green = 0x008000
+  cyan = 0x00ffff
+  blue = 0x0000ff
+  violet = 0xee82ee
+  purple = 0x800080
+  pink = 0xffc0cb
+  black = 0x000000
+  
+
+class Texture:
+  white_square = '\U00002B1C'
+  green_square = '\U0001F7E9'
+  red_square = '\U0001F7E5'
+  meso = '<:meso:770983858094211073>'
+
+
 TableExp = {
   1:0,
   2:15,
@@ -133,3 +154,12 @@ class WeaponType:
   knuckle = 'knuckle'
   gun = 'gun'
   
+class SkillType:
+  att = 'att'
+  stat = 'stat'
+  attack = 'attack'
+  buff = 'buff'
+  iframe = 'iframe'
+  
+class EventType:
+  elite_monster = 'elite_monster'

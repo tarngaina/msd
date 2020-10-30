@@ -24,10 +24,11 @@ def find(id):
   return a
 
 class Area():
-  def __init__(self, id, name, is_safe, **dic):
+  def __init__(self, id, name, is_safe, texture = None, **dic):
     self.id = id
     self.name = name
     self.is_safe = is_safe
+    self.texture = texture
     if not self.is_safe:
       self.lv = dic['lv']
       self.att = dic['att']
@@ -39,74 +40,66 @@ class Area():
   def random_item(self):
     return random.choice(self.items)
 
-add(
-  Area(
-    id = 'fm',
-    name = 'free market',
-    is_safe = True
-  )
-)
+  def get_name(self):
+    s = ''
+    if self.texture != None:
+      s += self.texture + ' '
+    s += f'**{self.name}**'
+    return s
+
 add(
   Area(
     id = 'hsys',
-    name = 'henesys',
+    name = 'Henesys',
     is_safe = False,
+    texture = '<:henesys:771211976374222890>',
     lv = 1,
     att = 24,
     xp = 33,
     xp_rate = 1.4,
     meso = 31,
-    items = [
-      item.find('mcap'),
-      item.find('snail')
-    ]
+    items = item.get_victoria_island_etc() + item.get_frozen_set()
   )
 )
 add(
   Area(
     id = 'ell',
-    name = 'ellinia',
+    name = 'Ellinia',
     is_safe = False,
+    texture = '<:ef:771211983407284224>',
     lv = 10,
     att = 99,
     xp = 198,
     xp_rate = 1.6,
     meso = 63,
-    items = [
-      item.find('sliquid'),
-      item.find('ltail')
-    ] + item.get_burning_set()
+    items = item.get_victoria_island_etc() + item.get_frozen_set()
   )
 )
 add(
   Area(
     id = 'kc',
-    name = 'kerning city',
+    name = 'Kerning City',
     is_safe = False,
+    texture = '<:kc:771211996296904755>',
     lv = 20,
     att = 154,
     xp = 463,
     xp_rate = 1.8,
     meso = 150,
-    items = [
-      item.find('bwing'),
-      item.find('lskin')
-    ] + item.get_burning_set()
+    items = item.get_victoria_island_etc() + item.get_frozen_set()
   )
 )
 add(
   Area(
     id = 'nts',
-    name = 'nautilus harbor',
+    name = 'Nautilus Harbor',
     is_safe = False,
+    texture = '<:ntls:771212002798338079>',
     lv = 30,
     att = 223,
     xp = 890,
     xp_rate = 1.9,
     meso = 230,
-    items = [
-      item.find('ribbon'),
-      item.find('starfish')
-    ] + item.get_burning_set()
+    items = item.get_victoria_island_etc() + item.get_frozen_set()
   )
 )

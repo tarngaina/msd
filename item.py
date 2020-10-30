@@ -29,11 +29,12 @@ def from_dict(dic):
 
 
 class Item:
-  def __init__(self, id, name, type, price, **dic):
+  def __init__(self, id, name, type, price, texture = None, **dic):
     self.id = id
     self.name = name
     self.type = type
     self.price = price
+    self.texture = texture
     if type == constant.ItemType.consume:
       if 'hp' in dic:
         self.hp = dic['hp']
@@ -61,91 +62,72 @@ class Item:
     return dic
     
   def get_name(self):
-    return self.name
+    s = ''
+    if self.texture != None:
+      s += self.texture + ' '
+    s = s + f'**{self.name}**'
+    return s
 
 add(
   Item(
     id = 'mcap',
-    name = 'mushroom cap',
+    name = 'Mushroom Cap',
     type = constant.ItemType.etc,
-    price = 100
+    price = 100,
+    texture = '<:mcap:771002172686073886>'
   )
 )
 add(
   Item(
     id = 'snail',
-    name = 'snail',
+    name = 'Snail Shell',
     type = constant.ItemType.etc,
-    price = 35
+    price = 35,
+    texture = '<:snail:771002198632038410>'
   )
 )
 add(
   Item(
     id = 'sliquid',
-    name = 'slime liquid',
+    name = 'Slime Liquid',
     type = constant.ItemType.etc,
-    price = 60
+    price = 60,
+    texture = '<:sliquid:771002214725976120>'
   )
 )
 add(
   Item(
-    id = 'ltail',
-    name = 'lizard tail',
+    id = 'pribbon',
+    name = 'Pig Ribbon',
     type = constant.ItemType.etc,
-    price = 120
+    price = 180,
+    texture = '<:pribbon:771002230433120266>'
   )
 )
-add(
-  Item(
-    id = 'bwing',
-    name = 'bat wing',
-    type = constant.ItemType.etc,
-    price = 150
-  )
-)
-add(
-  Item(
-    id = 'lskin',
-    name = 'ligator skin',
-    type = constant.ItemType.etc,
-    price = 230
-  )
-)
-add(
-  Item(
-    id = 'ribbon',
-    name = 'pig ribbon',
-    type = constant.ItemType.etc,
-    price = 180
-  )
-)
-add(
-  Item(
-    id = 'starfish',
-    name = 'starfish',
-    type = constant.ItemType.etc,
-    price = 280
-  )
-)
-
+def get_victoria_island_etc():
+  i = []
+  i.append(find('mcap'))
+  i.append(find('snail'))
+  i.append(find('sliquid'))
+  i.append(find('pribbon'))
+  return i
 
 add(
   Item(
-    id = 'wpot',
-    name = 'white potion',
+    id = 'hppot',
+    name = 'Power Elixir',
     type = constant.ItemType.consume,
-    price = 300,
-    hp = 300
+    price = 2500
   )
 )
-
-
+  
 add(
   Item(
     id = '',
-    name = 'burning sword',
+    name = 'Frozen Sword',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_sword:771174925817348096>',
     equip_type = constant.EquipType.weapon,
     weapon_type = constant.WeaponType.sword,
     lv = 10,
@@ -158,9 +140,10 @@ add(
 add(
   Item(
     id = '',
-    name = 'burning axe',
+    name = 'Frozen Axe',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_axe:771174942623531008>',
     equip_type = constant.EquipType.weapon,
     weapon_type = constant.WeaponType.axe,
     lv = 10,
@@ -173,9 +156,10 @@ add(
 add(
   Item(
     id = '',
-    name = 'burning spear',
+    name = 'Frozen Spear',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_spear:771174955958272038>',
     equip_type = constant.EquipType.weapon,
     weapon_type = constant.WeaponType.spear,
     lv = 10,
@@ -188,9 +172,10 @@ add(
 add(
   Item(
     id = '',
-    name = 'burning bow',
+    name = 'Frozen Longbow',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_bow:771174969731448832>',
     equip_type = constant.EquipType.weapon,
     weapon_type = constant.WeaponType.bow,
     lv = 10,
@@ -203,9 +188,10 @@ add(
 add(
   Item(
     id = '',
-    name = 'burning crossbow',
+    name = 'Frozen Crossbow',
     type = constant.ItemType.equip,
     price = 280,
+    texture = '<:frozen_crossbow:771174978280357938>',
     equip_type = constant.EquipType.weapon,
     weapon_type = constant.WeaponType.crossbow,
     lv = 10,
@@ -218,9 +204,10 @@ add(
 add(
   Item(
     id = '',
-    name = 'burning staff',
+    name = 'Frozen Staff',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_staff:771175033371623446>',
     equip_type = constant.EquipType.weapon,
     weapon_type = constant.WeaponType.staff,
     lv = 10,
@@ -233,9 +220,10 @@ add(
 add(
   Item(
     id = '',
-    name = 'burning wand',
+    name = 'Frozen Wand',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_wand:771175021321650186>',
     equip_type = constant.EquipType.weapon,
     weapon_type = constant.WeaponType.wand,
     lv = 10,
@@ -248,9 +236,10 @@ add(
 add(
   Item(
     id = '',
-    name = 'burning claw',
+    name = 'Frozen Steer',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_steer:771175066314473482>',
     equip_type = constant.EquipType.weapon,
     weapon_type = constant.WeaponType.claw,
     lv = 10,
@@ -263,9 +252,10 @@ add(
 add(
   Item(
     id = '',
-    name = 'burning dagger',
+    name = 'Frozen Cutter',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_cutter:771175059519832095>',
     equip_type = constant.EquipType.weapon,
     weapon_type = constant.WeaponType.dagger,
     lv = 10,
@@ -278,9 +268,10 @@ add(
 add(
   Item(
     id = '',
-    name = 'burning knuckle',
+    name = 'Frozen Grip',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_grip:771175075675897876>',
     equip_type = constant.EquipType.weapon,
     weapon_type = constant.WeaponType.knuckle,
     lv = 10,
@@ -293,9 +284,10 @@ add(
 add(
   Item(
     id = '',
-    name = 'burning gun',
+    name = 'Frozen Shooter',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_shooter:771175093443362836>',
     equip_type = constant.EquipType.weapon,
     weapon_type = constant.WeaponType.gun,
     lv = 10,
@@ -311,6 +303,7 @@ add(
     name = 'Frozen Hat',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_hat:771174880808796170>',
     equip_type = constant.EquipType.hat,
     lv = 10,
     att = 2,
@@ -327,6 +320,7 @@ add(
     name = 'Frozen Suit',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_suit:771174893710344252>',
     equip_type = constant.EquipType.overall,
     lv = 10,
     att = 2,
@@ -343,6 +337,7 @@ add(
     name = 'Frozen Cape',
     type = constant.ItemType.equip,
     price = 1,
+    texture = '<:frozen_cape:771174907182186548>',
     equip_type = constant.EquipType.cape,
     lv = 10,
     att = 2,

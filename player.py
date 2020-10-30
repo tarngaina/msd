@@ -27,6 +27,12 @@ class Player():
     self.int = 5
     self.luk = 5
     self.free_stat_point = 0
+    self.skill_att = 0
+    self.skill_stat = 0
+    self.skill_attack = 0
+    self.skill_buff = 0
+    self.skill_iframe = 0
+    self.free_skill_point = 0
     self.job = job.jobs[0]
     self.area = area.areas[0]
     self.inventory = {
@@ -57,6 +63,12 @@ class Player():
     dic['int'] = self.int
     dic['luk'] = self.luk
     dic['free_stat_point'] = self.free_stat_point
+    dic['skill_att'] = self.skill_att
+    dic['skill_stat'] = self.skill_stat
+    dic['skill_attack'] = self.skill_attack
+    dic['skill_buff'] = self.skill_buff
+    dic['skill_iframe'] = self.skill_iframe
+    dic['free_skill_point'] = self.free_skill_point
     dic['job'] = self.job.name
     dic['area'] = self.area.id
     dic['inventory'] = self.inventory_to_dict()
@@ -75,6 +87,12 @@ class Player():
     self.int = dic['int']
     self.luk = dic['luk']
     self.free_stat_point = dic['free_stat_point']
+    self.skill_att = dic['skill_att']
+    self.skill_stat = dic['skill_stat']
+    self.skill_attack = dic['skill_attack']
+    self.skill_buff = dic['skill_buff']
+    self.skill_iframe = dic['skill_iframe']
+    self.free_skill_point = dic['free_skill_point']
     self.job = job.find(dic['job'])
     self.area = area.find(dic['area'])
     self.inventory_from_dict(dic['inventory'])
@@ -169,10 +187,26 @@ class Player():
       self.int += point
     if stat_name == 'luk':
       self.luk += point
+      
+  def set_skill(self, s, point):
+    if s.type == constant.SkillType.att:
+      self.skill_att += point
+      self.att += point * 2
+    elif s.type == constant.SkillType.stat:
+      self.skill_stat += point
+      self.set_stat(self.job.main_stat, point * 5)
+      self.set_stat(self.job.sub_stat, point * 2)
+    elif s.type == constant.SkillType.attack:
+      self.skill_attack += point
+    elif s.type == constant.SkillType.buff:
+      self.skill_buff += point
+    else:
+      self.skill_iframe += point
+    self.free_skill_point -= point
 
   def get_att(self):
     att = self.att + (self.get_main_stat() / 4.0) + (self.get_sub_stat() / 16.0)
-    att += self.att * self.lv / 10
+    att += self.att * self.lv / 100
     att = int(att)
     return att
     
@@ -191,6 +225,7 @@ class Player():
     self.max_hp += 50
     self.hp = self.max_hp
     self.free_stat_point += 5
+    self.free_skill_point += 3
 
   def gain_item(self, item, number):
     if item.type == constant.ItemType.etc:
@@ -208,7 +243,12 @@ class Player():
     self.job = job
     self.free_stat_point += 10
     self.hp += 100
-    self.att += self.job.job_grade * 5
+    self.att += 10
+    self.skill_att = 1
+    self.skill_stat = 1
+    self.skill_attack = 1
+    self.skill_buff = 1
+    self.skill_iframe = 1
 
   def get_hit(self, hp):
     self.hp -= hp
@@ -302,3 +342,20 @@ class Player():
     if 'luk' in dic:
       self.luk += dic['luk']
     self.inventory['equip'].remove(item)
+    
+    
+  def get_xp_bar_texture(self):
+    percent = self.get_xp_percent()
+    percent = int(percent)
+    green = percent // 10
+    white = 10 - green
+    bar = constant.Texture.green_square * green + constant.Texture.white_square * white
+    return bar
+  
+  def get_hp_bar_texture(self):
+    percent = self.hp / self.max_hp * 100
+    percent = int(percent)
+    red = percent // 10
+    white = 10 - red
+    bar = constant.Texture.red_square * red + constant.Texture.white_square * white
+    return bar

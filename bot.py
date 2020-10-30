@@ -1,13 +1,15 @@
 import os, datetime
+import discord
 from discord.ext import commands
 import keep_alive
 import constant, manager, pref, player, item, area, job
+import event
 
 # hide token in .env
 token = os.getenv("TOKEN")
 prefix = 'msd '
 bot = commands.Bot(command_prefix=prefix, case_insentitive=True)
-
+event.bot = bot
 
 @bot.event
 async def on_ready():
@@ -22,35 +24,77 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-@bot.command(description='show some stuffs')
+@bot.command(aliases = ['p'], description='show some stuffs')
 async def profile(ctx):
   p = player.find(ctx.author.id)
-  s = (
-    f'{ctx.author.mention}\'s profile:\n'
-    f'hp: {p.hp}/{p.max_hp}\n'
-    f'lv: {p.lv}, xp: {p.get_xp_percent():.2f}%\n'
-    f'job: {p.job.name}\n'
-    f'meso: {p.meso:n}'
+  embed = discord.Embed(
+    title = f'**{ctx.author.name}**',
+    description = f'{p.job.get_name().upper()} Lv.{p.lv}',
+    color = constant.ColorHex.pink
   )
-  await ctx.send(s)
+  embed.set_thumbnail(url = ctx.author.avatar_url)
+  embed.add_field(
+    name = 'GENERAL',
+    value = (
+      f'**Exp**: {p.xp:,.0f} ({p.get_xp_percent():.2f}%)\n'
+      f'{p.get_xp_bar_texture()}\n'
+      f'**Guild**: \n'
+      f'**Fame**: \n'
+    ),
+    inline = False
+  )
+  embed.add_field(
+    name = 'STAT',
+    value = (
+      f'**HP**: {p.hp}/{p.max_hp}\n'
+      f'{p.get_hp_bar_texture()}\n'
+      f'**ATT**: {p.get_att()}\n'
+      f'**{p.job.main_stat.upper()}**: {p.get_main_stat()}'
+    ),
+    inline = False
+  )
+  embed.add_field(
+    name = 'INVENTORY',
+    value = (
+      f'{constant.Texture.meso} **Meso**: {p.meso:,.0f}'
+    ),
+    inline = False
+  )
+  await ctx.send(embed = embed)
 
 
 @bot.command(description='show your stats')
 async def stat(ctx):
   p = player.find(ctx.author.id)
-  s = (f'{ctx.author.mention} stats:\n'
-       f'job: {p.job.name}\n'
-       f'att: {p.get_att()}\n'
-       f'free point: {p.free_stat_point}\n'
-       f'str: {p.str}\n'
-       f'dex: {p.dex}\n'
-       f'int: {p.int}\n'
-       f'luk: {p.luk}\n')
-  await ctx.send(s)
+  embed = discord.Embed(
+    title = f'**{ctx.author.name}**',
+    description = '**STAT**',
+    color = constant.ColorHex.green
+  )
+  embed.set_thumbnail(url = ctx.author.avatar_url)
+  embed.add_field(
+    name = '**INFO**',
+    value = (
+      f'**ATT**: {p.get_att()}\n'
+      f'**HP**: {p.hp}/{p.max_hp}'
+    ),
+    inline = False
+  )
+  embed.add_field(
+    name = f'{p.job.get_name().upper()}, **AP**: {p.free_stat_point}',
+    value = (
+      f'**STR**: {p.str}\n'
+      f'**DEX**: {p.dex}\n'
+      f'**INT**: {p.int}\n'
+      f'**LUK**: {p.luk}'
+    ),
+    inline = False
+  )
+  await ctx.send(embed = embed)
 
 
-@bot.command(description='add point to str stat')
-async def str(ctx, pts: int):
+@bot.command(name = 'str', description='add point to str stat')
+async def str_(ctx, pts: int):
   p = player.find(ctx.author.id)
   res, msg = manager.plus_stat_point(p, 'str', pts)
   if res:
@@ -76,13 +120,57 @@ async def luk(ctx, pts: int):
   await ctx.send(msg)
 
 
-@bot.command(description='add point to int stat')
-async def int(ctx, pts: int):
+@bot.command(name = 'int', description='add point to int stat')
+async def int_(ctx, pts: int):
   p = player.find(ctx.author.id)
   res, msg = manager.plus_stat_point(p, 'int', pts)
   if res:
     pref.save(p.id)
   await ctx.send(msg)
+
+@bot.group(description = 'show your skills', invoke_without_command = True)
+async def skill(ctx):
+  s = ''
+  p = player.find(ctx.author.id)
+  if p.job.name.lower() != 'beginner':
+    embed = discord.Embed(
+      title = f'**{ctx.author.name}**',
+      description = '**SKILL**',
+      color = constant.ColorHex.cyan
+    )
+    embed.set_thumbnail(url = ctx.author.avatar_url)
+    embed.add_field(
+      name = '',#f'{p.job.get_name().upper()}, **SP**: {p.free_skill_point}',
+      value = (
+        f'{p.job.skills[0].get_name()} Lv.{p.skill_att}\n'
+        f'Increase your base attack point by {p.skill_att * 2}.\n'
+        f'{p.job.skills[1].get_name()} Lv.{p.skill_stat}\n'
+        f'Boost your {p.job.main_stat.upper()} by {p.skill_stat * 5} and {p.job.sub_stat.upper()} by {p.skill_stat * 2}.\n'
+        f'{p.job.skills[2].get_name()} Lv.{p.skill_attack}\n'
+        f'Land an attack of {100 + p.skill_attack * 2}% damage on your enemy.\n'
+        f'{p.job.skills[3].get_name()} Lv.{p.skill_buff}\n'
+        f'In next {(p.skill_buff // 30) + 1} turn(s), your next attack deal bonus {p.skill_buff}% damage.\n'
+        f'{p.job().skills[4].get_name()} Lv.{p.skill_iframe}\n'
+        f'Instantly deal {p.skill_iframe}% damage on enemy and become invsible for next {(p.skill_buff // 30) + 1} turn(s).'
+      )
+    )
+    await ctx.send(embed = embed)
+  else:
+    await ctx.send('beginner has no skills')
+
+@skill.command(description = 'add point to skill')
+async def add(ctx, *, id):
+  p = player.find(ctx.author.id)
+  s = id.split(' ')
+  if s[-1].isnumeric():
+    pts = int(s[-1])
+    id = ' '.join(s[:-1])
+    res, msg = manager.plus_skill_point(p, id, pts)
+    if res:
+      pref.save(p.id)
+    await ctx.send(f'**{ctx.author.name}**{msg}')
+  else:
+    await ctx.send('not found number of point')
 
 
 @bot.command(aliases = ['f'], description='go farming')
@@ -93,7 +181,8 @@ async def farm(ctx):
     res2, msg = manager.farm(p)
     if res2:
       pref.save(p.id)
-    await ctx.send(ctx.author.mention + msg)
+    await ctx.send(f'**{ctx.author.name}**{msg}')
+    await event.trigger_event(ctx.channel, ctx.author)
   else:
     await ctx.send(msg)
 
@@ -194,7 +283,7 @@ async def sell(ctx, *, param):
   num = 1
   if param[-1].isnumeric():
     id = ' '.join(param[:-1])
-    num = param[-1]
+    num = int(param[-1])
   p = player.find(ctx.author.id)
   res, msg = manager.sell_item(p, id, num)
   if res:
@@ -203,7 +292,7 @@ async def sell(ctx, *, param):
 
 
 @bot.group(description='advance job, advjob list for list of jobs', invoke_without_command=True)
-async def advance(ctx, job=None):
+async def advance(ctx, *, job=None):
   if job == None:
     await ctx.send('msd advance list for list of jobs')
   else:
@@ -226,8 +315,12 @@ async def list(ctx):
 
 @bot.command()
 async def test(ctx):
-  p = player.find(ctx.author.id)
-  print(vars(p))
+  #p = player.find(ctx.author.id)
+  #print(vars(p))
+  s = ''
+  for e in ctx.guild.emojis:
+    s += f':{e.name}:{e.id}\n'
+  await ctx.send(s)
 
 
 keep_alive.keep_alive()

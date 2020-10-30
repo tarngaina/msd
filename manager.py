@@ -7,7 +7,7 @@ def check_cd(p, key):
   if sec > constant.CDs[key]:
     p.cd[key] = now
     return True, 0
-  return False, f' you need to wait more {int(constant.CDs[key] - sec)}s'
+  return False, f' need to wait more {int(constant.CDs[key] - sec)}s to go farming again.'
 
 def get_xp_on_farm(p):
   gap = p.lv - p.area.lv
@@ -23,7 +23,7 @@ def get_xp_on_farm(p):
     bonus_xp = xp * random.randint(0, 50) / 100
   xp = xp * p.area.xp_rate + bonus_xp
   xp = int(xp)
-  return xp
+  return xp * 10
   
 def get_meso_on_farm(p):
   gap = p.lv - p.area.lv
@@ -38,6 +38,7 @@ def get_meso_on_farm(p):
 def get_hp_lost_on_farm(p):
   gap = p.lv - p.area.lv
   hp_lost = p.area.att
+  bonus_hp_lost = 0
   if gap < -15:
     bonus_hp_lost = hp_lost * random.randint(70, 400) / 100
   if -15 <= gap < -8:
@@ -65,30 +66,30 @@ def get_item_on_farm(p):
 
 def farm(p):
   if not p.area.is_safe:
-    s = f' farmed around {p.area.name}\n'
+    s = f' has farmed around {p.area.get_name()}\n'
     hp = get_hp_lost_on_farm(p)
     die = p.get_hit(hp)
     if not die:
-      s += f'you lost {hp}hp: {p.hp}/{p.max_hp}\n'
+      s += f'Lost {hp} HP, remaining HP: {p.hp}/{p.max_hp}\n'
       meso = get_meso_on_farm(p)
       xp = get_xp_on_farm(p)
       p.gain_meso(meso) 
       lvup = p.gain_xp(xp)
       s += (
-        f'you get {meso}meso\n'
-        f'you get {xp}xp: {p.get_xp_percent():.2f}%'
+        f'Got: {meso:n} {constant.Texture.meso}\n'
+        f'Got: {xp} XP'
         )
       if lvup:
-        s += f'\ngratz, you level up to {p.lv}'
+        s += f'\nLevel up to {p.lv}'
       chance, i, number = get_item_on_farm(p)
       if chance:
         p.gain_item(i, number)
-        s += f'\nand you get {number} {i.name}'
+        s += f'\nAnd got {number} {i.get_name()}.'
       return True, s
     else:
-      return False, f' lost {hp} and died'
+      return False, f' lost {hp} HP and died.'
   else:
-    return False, ' dumbass, go to hunting maps first, type msd map list'
+    return False, ', you need to go to hunting maps first, type "msd map list" for list of maps.'
 
 def advance_job(p, id):
   j = job.find(id)
@@ -96,17 +97,16 @@ def advance_job(p, id):
     if p.job.name == j.previous:
       if p.lv >= j.lv:
         p.gain_job(j)
-        return True, f'you became {p.job.name}'
+        return True, f' became {p.job.name}'
       else:
-        return False, f'not enough level, you need to reach lv{j.lv}'
+        return False, f' need to reach lv {j.lv} to advance to {j.name}.'
     else:
-      return False, f'cant advance to {j.name} from {p.job.name}'
+      return False, f', you can\'t advance from {p.job.name} to {j.name}.'
   else:
-    return False, f'there is no job named that, type msd job list for list of jobs'
+    return False, f', there is no job named that, type "msd job list" for list of jobs.'
       
       
 def sell_item(p, id, num):
-  num = int(num)
   i = item.find(id)
   if i == None:
     i = p.find_equip(id)
@@ -114,7 +114,7 @@ def sell_item(p, id, num):
     if i.type == constant.ItemType.equip:
       p.inventory['equip'].remove(i)
       p.meso += i.price
-      return True, f' you sold {i.name} for {i.price}meso'
+      return True, f' sold {i.name} for {i.price}meso'
     elif i.type == constant.ItemType.consume:
       if p.inventory['consume'][i.id] <= num:
         p.inventory['consume'][i.id] -= num
@@ -142,9 +142,9 @@ def equip_item(p, id):
   i = p.find_equip(id)
   if i != None:
     if p.lv >= i.lv:
-      if i.type == constant.EquipType.weapon:
-        if not i.weapon_type in p.job.weapon_types:
-          return False, ' you cant equip this weapon'
+      if i.equip_type == constant.EquipType.weapon:
+        if i.weapon_type not in p.job.weapon_types:
+          return False, ' you cant equip this weapon, check your job'
       p.equip_item(i)
       return True, f' equipped {i.name}'
     else:
@@ -161,14 +161,25 @@ def go_area(p, id):
     return False, 'cannot find that map'
 
 def plus_stat_point(p, stat_name, point):
-  if p.job.name != 'beginner':
+  if p.job.name.lower() != 'beginner':
     if point <= p.free_stat_point:
       p.set_stat(stat_name, point)
       p.free_stat_point -= point
-      return True, f'added {point} to your {stat_name}'
+      return True, f' added {point} AP to {stat_name}.'
     else:
       return False, 'not enough point'
   else:
     return False, 'beginner cant add point, msd advance for job advance'
   
+def plus_skill_point(p, id, point):
+  s = p.job.find_skill(id)
+  print(id)
+  if s != None:
+    if point <= p.free_skill_point:
+      p.set_skill(s, point)
+      return True, f' added {point} SP to {s.get_name()}.'
+    else:
+      return False, ' don\'t have enough SP.'
+  else:
+    return False, ', skill not found.'
 
