@@ -137,6 +137,7 @@ async def skill(ctx, *, param = None):
       pref.save(p.id)
     await ctx.send(f'**{ctx.author.name}**{msg}')
 
+
 @bot.command(aliases = ['f'], description='go farming')
 async def farm(ctx):
   p = player.find(ctx.author.id)
@@ -146,6 +147,86 @@ async def farm(ctx):
   await ctx.send(f'**{ctx.author.name}**{msg}')
   if res:
     await event.trigger_event(ctx.channel, ctx.author)
+
+
+@bot.command(description='equip an item')
+async def equip(ctx, *, id):
+  p = player.find(ctx.author.id)
+  if id == 'info':
+    e = ''
+    s = (
+      f'{ctx.author.mention} equips: \n'
+      f'weapon: {p.weapon.get_name() if p.weapon != None else e}\n'
+      f'hat: {p.hat.get_name() if p.hat != None else e}\n'
+      f'top: {p.top.get_name() if p.top != None else e}\n'
+      f'bottom: {p.bottom.get_name() if p.bottom != None else e}\n'
+      f'shoe: {p.shoe.get_name() if p.shoe != None else e}\n'
+      f'glove: {p.glove.get_name() if p.glove != None else e}\n'
+      f'cape: {p.cape.get_name() if p.cape != None else e}\n'
+      f'shoulder: {p.shoulder.get_name() if p.shoulder != None else e}\n'
+      )
+    await ctx.send(s)
+  else:
+    res, msg = manager.equip_item(p, id)
+    if res:
+      pref.save(p.id)
+    await ctx.send(msg)
+
+
+@bot.group(aliases=['i', 'inv'], description='show your inventory', invoke_without_command=True)
+async def inventory(ctx):
+  p = player.find(ctx.author.id)
+  s = (
+    f'{ctx.author.mention} has:\n'
+    f'meso: {p.meso}\n\n'
+    'type msd inventory <category> to see your items\n' 'categories:\n' 'equip\nconsume\netc')
+  await ctx.send(s)
+
+
+@inventory.command(description='show your equip tab')
+async def equip(ctx):
+  s = f'{ctx.author.name} has equips:\n'
+  p = player.find(ctx.author.id)
+  count = 0
+  for i in p.inventory['equip']:
+    s += f'{i.name} (id:equip{count})\n'
+    count += 1
+  await ctx.send(s)
+
+
+@inventory.command(description='show your consume tab')
+async def consume(ctx):
+  s = f'{ctx.author.name} has consumes:\n'
+  p = player.find(ctx.author.id)
+  for id in p.inventory['consume']:
+    i = item.find(id)
+    s += f'{item.find(id).name}: {p.inventory["consume"][id]}\n'
+  await ctx.send(s)
+
+
+@inventory.command(description='show your etc tab')
+async def etc(ctx):
+  s = f'{ctx.author.name} has etcs:\n'
+  p = player.find(ctx.author.id)
+  for id in p.inventory['etc']:
+    i = item.find(id)
+    s += f'{item.find(id).name}: {p.inventory["etc"][id]}\n'
+  await ctx.send(s)
+
+
+@bot.command(description='sell your item with number')
+async def sell(ctx, *, param):
+  param = param.split(' ')
+  id = ' '.join(param)
+  num = 1
+  if param[-1].isnumeric():
+    id = ' '.join(param[:-1])
+    num = int(param[-1])
+  p = player.find(ctx.author.id)
+  res, msg = manager.sell_item(p, id, num)
+  if res:
+    pref.save(p.id)
+  await ctx.send(msg)
 
 
 @bot.command(aliases = ['m'], description='show where you are now')
@@ -192,85 +273,6 @@ async def map(ctx, *, param = None):
     if res:
       pref.save(p.id)
     await ctx.send(f'**{ctx.author.name}**{msg}')
-
-
-@bot.group(aliases=['i', 'inv'], description='show your inventory', invoke_without_command=True)
-async def inventory(ctx):
-  p = player.find(ctx.author.id)
-  s = (
-    f'{ctx.author.mention} has:\n'
-    f'meso: {p.meso}\n\n'
-    'type msd inventory <category> to see your items\n' 'categories:\n' 'equip\nconsume\netc')
-  await ctx.send(s)
-
-
-@inventory.command(description='show your equip tab')
-async def equip(ctx):
-  s = f'{ctx.author.name} has equips:\n'
-  p = player.find(ctx.author.id)
-  count = 0
-  for i in p.inventory['equip']:
-    s += f'{i.name} (id:equip{count})\n'
-    count += 1
-  await ctx.send(s)
-
-
-@inventory.command(description='show your consume tab')
-async def consume(ctx):
-  s = f'{ctx.author.name} has consumes:\n'
-  p = player.find(ctx.author.id)
-  for id in p.inventory['consume']:
-    i = item.find(id)
-    s += f'{item.find(id).name}: {p.inventory["consume"][id]}\n'
-  await ctx.send(s)
-
-
-@inventory.command(description='show your etc tab')
-async def etc(ctx):
-  s = f'{ctx.author.name} has etcs:\n'
-  p = player.find(ctx.author.id)
-  for id in p.inventory['etc']:
-    i = item.find(id)
-    s += f'{item.find(id).name}: {p.inventory["etc"][id]}\n'
-  await ctx.send(s)
-
-
-@bot.command(description='equip an item')
-async def equip(ctx, *, id):
-  p = player.find(ctx.author.id)
-  if id == 'info':
-    e = ''
-    s = (
-      f'{ctx.author.mention} equips: \n'
-      f'weapon: {p.weapon.get_name() if p.weapon != None else e}\n'
-      f'hat: {p.hat.get_name() if p.hat != None else e}\n'
-      f'top: {p.top.get_name() if p.top != None else e}\n'
-      f'bottom: {p.bottom.get_name() if p.bottom != None else e}\n'
-      f'shoe: {p.shoe.get_name() if p.shoe != None else e}\n'
-      f'glove: {p.glove.get_name() if p.glove != None else e}\n'
-      f'cape: {p.cape.get_name() if p.cape != None else e}\n'
-      f'shoulder: {p.shoulder.get_name() if p.shoulder != None else e}\n'
-      )
-    await ctx.send(s)
-  else:
-    res, msg = manager.equip_item(p, id)
-    if res:
-      pref.save(p.id)
-    await ctx.send(msg)
-
-@bot.command(description='sell your item with number')
-async def sell(ctx, *, param):
-  param = param.split(' ')
-  id = ' '.join(param)
-  num = 1
-  if param[-1].isnumeric():
-    id = ' '.join(param[:-1])
-    num = int(param[-1])
-  p = player.find(ctx.author.id)
-  res, msg = manager.sell_item(p, id, num)
-  if res:
-    pref.save(p.id)
-  await ctx.send(msg)
 
 
 @bot.command(aliases = ['adv'], description='advance job, advjob list for list of jobs')
