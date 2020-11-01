@@ -20,6 +20,7 @@ class Texture:
 
 
 TableExp = {
+  0:0,
   1:0,
   2:15,
   3:49,
@@ -122,7 +123,7 @@ TableExp = {
 }
 
 CDs = {
-  'farm':0.0
+  'farm':10.0
 }
 
 class ItemType:

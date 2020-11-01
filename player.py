@@ -225,7 +225,8 @@ class Player():
     self.max_hp += 50
     self.hp = self.max_hp
     self.free_stat_point += 5
-    self.free_skill_point += 3
+    if self.lv < 167:
+      self.free_skill_point += 3
 
   def gain_item(self, item, number):
     if item.type == constant.ItemType.etc:
@@ -265,6 +266,8 @@ class Player():
     self.hp = self.max_hp
 
   def get_xp_percent(self):
+    if self.xp == 0 and self.lv == 1:
+      return 0
     xp_last_lv = constant.TableExp[self.lv-1]
     xp_earned = self.xp - xp_last_lv
     xp_total = constant.TableExp[self.lv] - xp_last_lv

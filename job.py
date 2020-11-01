@@ -16,13 +16,11 @@ def find(id):
   return j
 
 class Job():
-  def __init__(self, name, lv, main_stat, sub_stat, weapon_types, previous, skills):
+  def __init__(self, name, main_stat, sub_stat, weapon_types, skills):
     self.name = name
-    self.lv = lv
     self.main_stat = main_stat
     self.sub_stat = sub_stat
     self.weapon_types = weapon_types
-    self.previous = previous
     self.skills = skills
 
   def find_skill(self, id):
@@ -41,12 +39,10 @@ class Job():
 add(
   Job(
     name = 'Beginner',
-    lv = 1,
     main_stat = 'str',
     sub_stat = 'str',
     weapon_types = ['sword'],
-    previous = None,
-    skills = None,
+    skills = []
   )
 )
 
@@ -54,11 +50,9 @@ add(
 add(
   Job(
     name = 'Hero',
-    lv = 10,
     main_stat = 'str',
     sub_stat = 'dex',
     weapon_types = ['sword', 'axe'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',
@@ -92,11 +86,9 @@ add(
 add(
   Job(
     name = 'Paladin',
-    lv = 10,
     main_stat = 'str',
     sub_stat = 'dex',
     weapon_types = ['sword', 'axe'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',
@@ -130,11 +122,9 @@ add(
 add(
   Job(
     name = 'Dark Knight',
-    lv = 10,
     main_stat = 'str',
     sub_stat = 'dex',
     weapon_types = ['spear'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',
@@ -168,11 +158,9 @@ add(
 add(
   Job(
     name = 'Bowmaster',
-    lv = 10,
     main_stat = 'dex',
     sub_stat = 'str',
     weapon_types = ['bow'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',
@@ -206,11 +194,9 @@ add(
 add(
   Job(
     name = 'Marksman',
-    lv = 10,
     main_stat = 'dex',
     sub_stat = 'str',
     weapon_types = ['crossbow'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',
@@ -243,12 +229,10 @@ add(
 
 add(
   Job(
-    name = 'Arch Mage Fire Posion',
-    lv = 10,
+    name = 'Arch Mage Fire Poison',
     main_stat = 'int',
     sub_stat = 'luk',
     weapon_types = ['staff, wand'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',
@@ -282,11 +266,9 @@ add(
 add(
   Job(
     name = 'Arch Mage Ice Lightning',
-    lv = 10,
     main_stat = 'int',
     sub_stat = 'luk',
     weapon_types = ['staff, wand'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',
@@ -320,11 +302,9 @@ add(
 add(
   Job(
     name = 'Bishop',
-    lv = 10,
     main_stat = 'int',
     sub_stat = 'luk',
     weapon_types = ['staff, wand'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',
@@ -358,11 +338,9 @@ add(
 add(
   Job(
     name = 'Night Lord',
-    lv = 10,
     main_stat = 'luk',
     sub_stat = 'dex',
     weapon_types = ['claw'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',
@@ -396,11 +374,9 @@ add(
 add(
   Job(
     name = 'Shadower',
-    lv = 10,
     main_stat = 'luk',
     sub_stat = 'dex',
     weapon_types = ['dagger'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',
@@ -434,11 +410,9 @@ add(
 add(
   Job(
     name = 'Buccaneer',
-    lv = 10,
     main_stat = 'str',
     sub_stat = 'dex',
     weapon_types = ['knuckle'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',
@@ -472,11 +446,9 @@ add(
 add(
   Job(
     name = 'Corsair',
-    lv = 10,
     main_stat = 'dex',
     sub_stat = 'str',
     weapon_types = ['gun'],
-    previous = 'Beginner',
     skills = [
       skill.Skill(
         id = '',

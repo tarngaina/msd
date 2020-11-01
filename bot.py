@@ -60,79 +60,54 @@ async def profile(ctx):
     ),
     inline = False
   )
+  embed.set_footer(text = 'Some useful commands: "stat", "skill", "inventory", "equip".')
   await ctx.send(embed = embed)
 
 
 @bot.command(description='show your stats')
-async def stat(ctx):
+async def stat(ctx, *, param = None):
   p = player.find(ctx.author.id)
-  embed = discord.Embed(
-    title = f'**{ctx.author.name}**',
-    description = '**STAT**',
-    color = constant.ColorHex.green
-  )
-  embed.set_thumbnail(url = ctx.author.avatar_url)
-  embed.add_field(
-    name = '**INFO**',
-    value = (
-      f'**ATT**: {p.get_att()}\n'
-      f'**HP**: {p.hp}/{p.max_hp}'
-    ),
-    inline = False
-  )
-  embed.add_field(
-    name = f'{p.job.get_name().upper()}, **AP**: {p.free_stat_point}',
-    value = (
-      f'**STR**: {p.str}\n'
-      f'**DEX**: {p.dex}\n'
-      f'**INT**: {p.int}\n'
-      f'**LUK**: {p.luk}'
-    ),
-    inline = False
-  )
-  await ctx.send(embed = embed)
+  if param == None:
+    embed = discord.Embed(
+      title = f'**{ctx.author.name}**',
+      description = '**STAT**',
+      color = constant.ColorHex.green
+    )
+    embed.set_thumbnail(url = ctx.author.avatar_url)
+    embed.add_field(
+      name = '**INFO**',
+      value = (
+        f'**ATT**: {p.get_att()}\n'
+        f'**HP**: {p.hp}/{p.max_hp}'
+      ),
+      inline = False
+    )
+    embed.add_field(
+      name = f'{p.job.get_name().upper()}, **AP**: {p.free_stat_point}',
+      value = (
+        f'**STR**: {p.str}\n'
+        f'**DEX**: {p.dex}\n'
+        f'**INT**: {p.int}\n'
+        f'**LUK**: {p.luk}'
+      ),
+      inline = False
+    )
+    embed.set_footer(text = 'Command to increase you stats: "stat <name> <AP>".')
+    await ctx.send(embed = embed)
+  else:
+    res, msg = manager.plus_stat_point(p, param)
+    if res:
+      pref.save(p.id)
+    await ctx.send(f'**{ctx.author.name}**{msg}')
 
 
-@bot.command(name = 'str', description='add point to str stat')
-async def str_(ctx, pts: int):
+@bot.command(description='show you skills')
+async def skill(ctx, *, param = None):
   p = player.find(ctx.author.id)
-  res, msg = manager.plus_stat_point(p, 'str', pts)
-  if res:
-    pref.save(p.id)
-  await ctx.send(msg)
-
-
-@bot.command(description='add point to dex stat')
-async def dex(ctx, pts: int):
-  p = player.find(ctx.author.id)
-  res, msg = manager.plus_stat_point(p, 'dex', pts)
-  if res:
-    pref.save(p.id)
-  await ctx.send(msg)
-
-
-@bot.command(description='add point to str stat')
-async def luk(ctx, pts: int):
-  p = player.find(ctx.author.id)
-  res, msg = manager.plus_stat_point(p, 'luk', pts)
-  if res:
-    pref.save(p.id)
-  await ctx.send(msg)
-
-
-@bot.command(name = 'int', description='add point to int stat')
-async def int_(ctx, pts: int):
-  p = player.find(ctx.author.id)
-  res, msg = manager.plus_stat_point(p, 'int', pts)
-  if res:
-    pref.save(p.id)
-  await ctx.send(msg)
-
-@bot.group(description = 'show your skills', invoke_without_command = True)
-async def skill(ctx):
-  s = ''
-  p = player.find(ctx.author.id)
-  if p.job.name.lower() != 'beginner':
+  if param == None:
+    if p.job.name.lower() == 'beginner':
+      await ctx.send(f'Sorry **{ctx.author.name}**, Beginner don\'t have skills.')
+      return
     embed = discord.Embed(
       title = f'**{ctx.author.name}**',
       description = '**SKILL**',
@@ -140,7 +115,7 @@ async def skill(ctx):
     )
     embed.set_thumbnail(url = ctx.author.avatar_url)
     embed.add_field(
-      name = '',#f'{p.job.get_name().upper()}, **SP**: {p.free_skill_point}',
+      name = f'{p.job.get_name().upper()}, **SP**: {p.free_skill_point}',
       value = (
         f'{p.job.skills[0].get_name()} Lv.{p.skill_att}\n'
         f'Increase your base attack point by {p.skill_att * 2}.\n'
@@ -149,67 +124,74 @@ async def skill(ctx):
         f'{p.job.skills[2].get_name()} Lv.{p.skill_attack}\n'
         f'Land an attack of {100 + p.skill_attack * 2}% damage on your enemy.\n'
         f'{p.job.skills[3].get_name()} Lv.{p.skill_buff}\n'
-        f'In next {(p.skill_buff // 30) + 1} turn(s), your next attack deal bonus {p.skill_buff}% damage.\n'
-        f'{p.job().skills[4].get_name()} Lv.{p.skill_iframe}\n'
+        f'For next {(p.skill_buff // 30) + 1} turn(s), your next attack deal bonus {p.skill_buff}% damage.\n'
+        f'{p.job.skills[4].get_name()} Lv.{p.skill_iframe}\n'#
         f'Instantly deal {p.skill_iframe}% damage on enemy and become invsible for next {(p.skill_buff // 30) + 1} turn(s).'
       )
     )
+    embed.set_footer(text = 'Command to increase your skills level: "skill <name> <SP>".')
     await ctx.send(embed = embed)
   else:
-    await ctx.send('beginner has no skills')
-
-@skill.command(description = 'add point to skill')
-async def add(ctx, *, id):
-  p = player.find(ctx.author.id)
-  s = id.split(' ')
-  if s[-1].isnumeric():
-    pts = int(s[-1])
-    id = ' '.join(s[:-1])
-    res, msg = manager.plus_skill_point(p, id, pts)
+    res, msg = manager.plus_skill_point(p, param)
     if res:
       pref.save(p.id)
     await ctx.send(f'**{ctx.author.name}**{msg}')
-  else:
-    await ctx.send('not found number of point')
-
 
 @bot.command(aliases = ['f'], description='go farming')
 async def farm(ctx):
   p = player.find(ctx.author.id)
-  res, msg = manager.check_cd(p, 'farm')
+  res, msg = manager.farm(p)
   if res:
-    res2, msg = manager.farm(p)
-    if res2:
+      pref.save(p.id)
+  await ctx.send(f'**{ctx.author.name}**{msg}')
+  if res:
+    await event.trigger_event(ctx.channel, ctx.author)
+
+
+@bot.command(aliases = ['m'], description='show where you are now')
+async def map(ctx, *, param = None):
+  p = player.find(ctx.author.id)
+  if param == None:
+    embed = discord.Embed(
+      title = f'**{ctx.author.name}**',
+      description = '**MAP**',
+      color = constant.ColorHex.purple
+    )
+    embed.set_thumbnail(url = ctx.author.avatar_url)
+    embed.add_field(
+      name = f'You are currently in \n{p.area.get_name()}',
+      value = f'Level recommended: **{p.area.lv}**',
+      inline = False
+    )
+    embed.set_footer(text = 'To see a list of map, use command: "map list".')
+    await ctx.send(embed = embed)
+  elif param.startswith('list'):
+    page = param[-1]
+    if page.isnumeric():
+      page = int(page)
+    else:
+      page = 1
+    embed = discord.Embed(
+      title = '**List of maps:**',
+      description = f'Page {page}',
+      color = constant.ColorHex.purple
+    )
+    start = (page-1)*5
+    end = start + 5
+    for i in range(start, end):
+      a = area.areas[i]
+      embed.add_field(
+        name = f'{a.get_name()}',
+        value = f'Lv.{a.lv}',
+        inline = True
+      )
+    embed.set_footer(text = 'To go certain map: "map <name>".')
+    await ctx.send(embed = embed)
+  else:
+    res, msg = manager.go_area(p, param)
+    if res:
       pref.save(p.id)
     await ctx.send(f'**{ctx.author.name}**{msg}')
-    await event.trigger_event(ctx.channel, ctx.author)
-  else:
-    await ctx.send(msg)
-
-
-@bot.group(description='show where you are now', invoke_without_command=True)
-async def map(ctx):
-  p = player.find(ctx.author.id)
-  await ctx.send(f'{ctx.author.mention}, you are in {p.area.name}\nmsd map list for list of maps')
-
-
-@bot.command(description='go to map with id, add find map by name later')
-async def go(ctx, *, id):
-  p = player.find(ctx.author.id)
-  res, msg = manager.go_area(p, id)
-  if res:
-    pref.save(p.id)
-  await ctx.send(msg)
-
-
-@map.command(description='show all map')
-async def list(ctx):
-  s = '\nmsd go name (or id)\n\n'
-  for a in area.areas:
-    s += f'{a.name}, id:{a.id}'
-    s = s + f' (lv.{a.lv}+)' if not a.is_safe else s
-    s += '\n'
-  await ctx.send(s)
 
 
 @bot.group(aliases=['i', 'inv'], description='show your inventory', invoke_without_command=True)
@@ -291,26 +273,38 @@ async def sell(ctx, *, param):
   await ctx.send(msg)
 
 
-@bot.group(description='advance job, advjob list for list of jobs', invoke_without_command=True)
-async def advance(ctx, *, job=None):
-  if job == None:
-    await ctx.send('msd advance list for list of jobs')
+@bot.command(aliases = ['adv'], description='advance job, advjob list for list of jobs')
+async def advance(ctx, *, param = None):
+  if param == None:
+    await ctx.send('Use command "advance list" for more information.')
+  elif param.startswith('list'):
+    page = param[-1]
+    if page.isnumeric():
+      page = int(page)
+    else:
+      page = 1
+    page_name = 'Explorer'
+    embed = discord.Embed(
+      title = '**List of jobs:**',
+      description = f'{page_name}',
+      color = constant.ColorHex.red
+    )
+    s = ''
+    for j in job.jobs:
+      if j.name.lower() != 'beginner':
+        s += f'{j.get_name()}: {j.main_stat.upper()}; {", ".join(j.weapon_types).upper()}\n'
+    embed.add_field(
+      name = 'Make sure you are beginner and reached lv 10.',
+      value = s
+    )
+    embed.set_footer(text = 'Advance job command: "advance <name>".')
+    await ctx.send(embed = embed)
   else:
     p = player.find(ctx.author.id)
-    res, msg = manager.advance_job(p, job)
+    res, msg = manager.advance_job(p, param)
     if res:
       pref.save(p.id)
-    await ctx.send(msg)
-
-
-@advance.command(description='show list of jobs')
-async def list(ctx):
-  p = player.find(ctx.author.id)
-  s = 'list of jobs:\n'
-  for j in job.jobs:
-    if j.previous == p.job.name:
-      s += f'{j.name}\n'
-  await ctx.send(s)
+    await ctx.send(f'**{ctx.author.name}**{msg}')
 
 
 @bot.command()

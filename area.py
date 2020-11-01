@@ -43,7 +43,7 @@ class Area():
   def get_name(self):
     s = ''
     if self.texture != None:
-      s += self.texture + ' '
+      s += self.texture
     s += f'**{self.name}**'
     return s
 
@@ -53,7 +53,7 @@ add(
     name = 'Henesys',
     is_safe = False,
     texture = '<:henesys:771211976374222890>',
-    lv = 1,
+    lv = 5,
     att = 24,
     xp = 33,
     xp_rate = 1.4,
@@ -67,11 +67,11 @@ add(
     name = 'Ellinia',
     is_safe = False,
     texture = '<:ef:771211983407284224>',
-    lv = 10,
+    lv = 15,
     att = 99,
     xp = 198,
     xp_rate = 1.6,
-    meso = 63,
+    meso = 105,
     items = item.get_victoria_island_etc() + item.get_frozen_set()
   )
 )
@@ -81,11 +81,11 @@ add(
     name = 'Kerning City',
     is_safe = False,
     texture = '<:kc:771211996296904755>',
-    lv = 20,
+    lv = 25,
     att = 154,
     xp = 463,
     xp_rate = 1.8,
-    meso = 150,
+    meso = 230,
     items = item.get_victoria_island_etc() + item.get_frozen_set()
   )
 )
@@ -95,11 +95,25 @@ add(
     name = 'Nautilus Harbor',
     is_safe = False,
     texture = '<:ntls:771212002798338079>',
-    lv = 30,
+    lv = 35,
     att = 223,
     xp = 890,
     xp_rate = 1.9,
-    meso = 230,
+    meso = 380,
+    items = item.get_victoria_island_etc() + item.get_frozen_set()
+  )
+)
+add(
+  Area(
+    id = 'prn',
+    name = 'Perion',
+    is_safe = False,
+    texture = None,
+    lv = 45,
+    att = 283,
+    xp = 2051,
+    xp_rate = 1,
+    meso = 450,
     items = item.get_victoria_island_etc() + item.get_frozen_set()
   )
 )

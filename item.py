@@ -64,7 +64,7 @@ class Item:
   def get_name(self):
     s = ''
     if self.texture != None:
-      s += self.texture + ' '
+      s += self.texture
     s = s + f'**{self.name}**'
     return s
 

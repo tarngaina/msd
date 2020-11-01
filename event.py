@@ -1,19 +1,21 @@
 import asyncio, random
 import constant
 
-
 bot = None
 
 events = []
+busy = []
 
 def add(e):
   events.append(e)
 
 async def trigger_event(channel, author):
-  if random.randint(0, 100) < 10:
-    e = random_event()
-    await asyncio.sleep(5)
-    await e.start(channel, author)
+  if random.randint(0, 100) < 5:
+    if author.id not in busy:
+      busy.append(author.id)
+      e = random_event()
+      await asyncio.sleep(1)
+      await e.start(channel, author)
   
 def random_event():
   return random.choice(events)
@@ -44,6 +46,7 @@ class Event():
           )
       except asyncio.TimeoutError:
         await channel.send('Sorry, you ran out of time.')
+    busy.pop(author.id)
     
 add(
   Event(

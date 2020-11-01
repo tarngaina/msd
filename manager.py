@@ -6,8 +6,8 @@ def check_cd(p, key):
   sec = (now - p.cd[key]).total_seconds()
   if sec > constant.CDs[key]:
     p.cd[key] = now
-    return True, 0
-  return False, f' need to wait more {int(constant.CDs[key] - sec)}s to go farming again.'
+    return True, ''
+  return False, f' need to wait more {int(constant.CDs[key] - sec)}s to go {key} again.'
 
 def get_xp_on_farm(p):
   gap = p.lv - p.area.lv
@@ -23,7 +23,7 @@ def get_xp_on_farm(p):
     bonus_xp = xp * random.randint(0, 50) / 100
   xp = xp * p.area.xp_rate + bonus_xp
   xp = int(xp)
-  return xp * 10
+  return xp * 100
   
 def get_meso_on_farm(p):
   gap = p.lv - p.area.lv
@@ -53,7 +53,6 @@ def get_hp_lost_on_farm(p):
   hp_lost = int(hp_lost)
   return hp_lost
   
-
 def get_item_on_farm(p):
   i = p.area.random_item()
   if i.type == constant.ItemType.equip:
@@ -65,6 +64,9 @@ def get_item_on_farm(p):
   return False, None, 0
 
 def farm(p):
+  cd, msg = check_cd(p, 'farm')
+  if not cd:
+    return False, msg
   if not p.area.is_safe:
     s = f' has farmed around {p.area.get_name()}\n'
     hp = get_hp_lost_on_farm(p)
@@ -76,8 +78,8 @@ def farm(p):
       p.gain_meso(meso) 
       lvup = p.gain_xp(xp)
       s += (
-        f'Got: {meso:n} {constant.Texture.meso}\n'
-        f'Got: {xp} XP'
+        f'Got: {meso:,.0f} {constant.Texture.meso}\n'
+        f'Got: {xp:,.0f} XP'
         )
       if lvup:
         s += f'\nLevel up to {p.lv}'
@@ -91,20 +93,17 @@ def farm(p):
   else:
     return False, ', you need to go to hunting maps first, type "msd map list" for list of maps.'
 
-def advance_job(p, id):
-  j = job.find(id)
-  if j != None:
-    if p.job.name == j.previous:
-      if p.lv >= j.lv:
-        p.gain_job(j)
-        return True, f' became {p.job.name}'
-      else:
-        return False, f' need to reach lv {j.lv} to advance to {j.name}.'
-    else:
-      return False, f', you can\'t advance from {p.job.name} to {j.name}.'
-  else:
-    return False, f', there is no job named that, type "msd job list" for list of jobs.'
-      
+def advance_job(p, param):
+  j = job.find(param)
+  if j == None:
+    return False, ', job not found.'
+  if p.lv < 10:
+    return False, ' need to reach lv.10 to advance job.'
+  if p.job.name != 'beginner':
+    return False, ', you have already got a job.'
+    
+  p.gain_job(j)
+  return True, f' became {p.job.get_name()}.'
       
 def sell_item(p, id, num):
   i = item.find(id)
@@ -152,34 +151,56 @@ def equip_item(p, id):
   else:
     return False, ' equip not found'
 
-def go_area(p, id):
-  a = area.find(id)
+def go_area(p, param):
+  a = area.find(param)
   if a != None:
     p.area = a
-    return True, f'moved to {a.name}'
+    return True, f' moved to {a.get_name()}.'
   else:
-    return False, 'cannot find that map'
+    return False, ', map not found.'
 
-def plus_stat_point(p, stat_name, point):
-  if p.job.name.lower() != 'beginner':
-    if point <= p.free_stat_point:
-      p.set_stat(stat_name, point)
-      p.free_stat_point -= point
-      return True, f' added {point} AP to {stat_name}.'
-    else:
-      return False, 'not enough point'
-  else:
-    return False, 'beginner cant add point, msd advance for job advance'
+def plus_stat_point(p, param):
+  param = param.split(' ')
+  point = param[-1]
+  if not point.isnumeric():
+    return False, ', AP number not found.'
+  point = int(point)
+  stat_name = ' '.join(param[:-1])
+  if stat_name not in ['str', 'dex', 'luk', 'int']:
+    return False, ', stat not found.'
+  if p.job.name.lower() == 'beginner':
+    return False, ', Beginner can not use AP.'
+  if point > p.free_stat_point:
+    return False, ', you don\'t have enough AP.'
+  p.set_stat(stat_name,   point)
+ 
+  p.free_stat_point -= point
+  return True, f' added {point} AP to {stat_name}.'
   
-def plus_skill_point(p, id, point):
+  
+def plus_skill_point(p, param):
+  param = param.split(' ')
+  point = param[-1]
+  if not point.isnumeric():
+    return False, ', SP number not found.'
+  point = int(point)
+  id = ' '.join(param[:-1])
   s = p.job.find_skill(id)
   print(id)
-  if s != None:
-    if point <= p.free_skill_point:
-      p.set_skill(s, point)
-      return True, f' added {point} SP to {s.get_name()}.'
-    else:
-      return False, ' don\'t have enough SP.'
-  else:
+  if s == None:
     return False, ', skill not found.'
-
+  if point > p.free_skill_point:
+    return False, ', you don\'t have enough SP.'
+  if s.type == constant.SkillType.att and p.skill_att + point > 100:
+    return False, ', invalid point, skill can only be maxed out at lv 100.'
+  if s.type == constant.SkillType.stat and p.skill_stat + point > 100:
+    return False, ', invalid point, skill can only be maxed out at lv 100.'
+  if s.type == constant.SkillType.attack and p.skill_attack + point > 100:
+    return False, ', invalid point, skill can only be maxed out at lv 100.'
+  if s.type == constant.SkillType.buff and p.skill_buff + point > 100:
+    return False, ', invalid point, skill can only be maxed out at lv 100.'
+  if s.type == constant.SkillType.iframe and p.skill_iframe + point > 100:
+    return False, ', invalid point, skill can only be maxed out at lv 100.'
+  
+  p.set_skill(s, point)
+  return True, f' added {point} SP to {s.get_name()}.'
